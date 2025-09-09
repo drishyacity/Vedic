@@ -92,8 +92,31 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Course operations
-  async getCourses(): Promise<Course[]> {
-    return await db.select().from(courses).where(eq(courses.isActive, true)).orderBy(desc(courses.createdAt));
+  async getCourses(): Promise<any[]> {
+    return await db
+      .select({
+        id: courses.id,
+        title: courses.title,
+        slug: courses.slug,
+        description: courses.description,
+        price: courses.price,
+        thumbnail: courses.thumbnail,
+        categoryId: courses.categoryId,
+        duration: courses.duration,
+        isActive: courses.isActive,
+        createdAt: courses.createdAt,
+        updatedAt: courses.updatedAt,
+        category: {
+          id: categories.id,
+          name: categories.name,
+          slug: categories.slug,
+          description: categories.description,
+        }
+      })
+      .from(courses)
+      .leftJoin(categories, eq(courses.categoryId, categories.id))
+      .where(eq(courses.isActive, true))
+      .orderBy(desc(courses.createdAt));
   }
 
   async getCourseBySlug(slug: string): Promise<Course | undefined> {
