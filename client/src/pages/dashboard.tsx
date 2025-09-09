@@ -48,18 +48,6 @@ export default function Dashboard() {
   const { data: enrollments = [], isLoading: enrollmentsLoading } = useQuery<EnrollmentWithBatch[]>({
     queryKey: ["/api/enrollments/my"],
     enabled: isAuthenticated,
-    onError: (error: Error) => {
-      if (isUnauthorizedError(error)) {
-        toast({
-          title: "Unauthorized",
-          description: "You are logged out. Logging in again...",
-          variant: "destructive",
-        });
-        setTimeout(() => {
-          window.location.href = "/api/login";
-        }, 500);
-      }
-    },
   });
 
   const { data: allCourses = [] } = useQuery<Course[]>({
@@ -85,10 +73,10 @@ export default function Dashboard() {
     );
   }
 
-  const activeEnrollments = enrollments.filter(e => e.status === 'active');
-  const completedEnrollments = enrollments.filter(e => e.status === 'completed');
+  const activeEnrollments = enrollments.filter((e: Enrollment) => e.status === 'active');
+  const completedEnrollments = enrollments.filter((e: Enrollment) => e.status === 'completed');
   const totalProgress = activeEnrollments.length > 0 
-    ? Math.round(activeEnrollments.reduce((sum, e) => sum + (e.progress || 0), 0) / activeEnrollments.length)
+    ? Math.round(activeEnrollments.reduce((sum: number, e: Enrollment) => sum + (e.progress || 0), 0) / activeEnrollments.length)
     : 0;
 
   return (
@@ -205,7 +193,7 @@ export default function Dashboard() {
                   </Card>
                 ) : (
                   <div className="space-y-4">
-                    {activeEnrollments.map((enrollment) => (
+                    {activeEnrollments.map((enrollment: EnrollmentWithBatch) => (
                       <Card key={enrollment.id} className="hover-lift" data-testid={`enrollment-${enrollment.id}`}>
                         <CardContent className="p-6">
                           <div className="flex items-center justify-between mb-3">

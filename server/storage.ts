@@ -186,13 +186,15 @@ export class DatabaseStorage implements IStorage {
 
   // Resource operations
   async getBatchResources(batchId: number, type?: string): Promise<Resource[]> {
-    let query = db.select().from(resources).where(eq(resources.batchId, batchId));
-    
     if (type) {
-      query = query.where(and(eq(resources.batchId, batchId), eq(resources.type, type)));
+      return await db.select().from(resources)
+        .where(and(eq(resources.batchId, batchId), eq(resources.type, type)))
+        .orderBy(desc(resources.createdAt));
     }
     
-    return await query.orderBy(desc(resources.createdAt));
+    return await db.select().from(resources)
+      .where(eq(resources.batchId, batchId))
+      .orderBy(desc(resources.createdAt));
   }
 
   async createResource(resource: InsertResource): Promise<Resource> {
