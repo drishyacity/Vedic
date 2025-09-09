@@ -106,3 +106,48 @@
   transform: translateY(-4px);
   box-shadow: 0 10px 25px rgba(0,0,0,0.1);
 }
+
+/* Additional utility classes for responsive design */
+.hover-elevate {
+  transition: all 0.2s ease-in-out;
+}
+
+.hover-elevate:hover {
+  background-color: hsl(var(--muted));
+}
+
+.active-elevate-2:active {
+  background-color: hsl(var(--muted));
+  transform: translateY(1px);
+}
+
+/* Responsive text utilities */
+@media (max-width: 640px) {
+  .responsive-text-sm {
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+  }
+  
+  .responsive-padding-sm {
+    padding: 1rem;
+  }
+}
+
+/* Custom scrollbar for webkit browsers */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: hsl(var(--muted));
+}
+
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--border));
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--foreground) / 0.4);
+}
