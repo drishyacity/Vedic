@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Menu, User, LogOut, Settings, BookOpen } from "lucide-react";
 import { useState } from "react";
+import ThemeToggle from "@/components/theme-toggle";
 
 export default function Navbar() {
   const { isAuthenticated, user } = useAuth();
@@ -52,6 +53,7 @@ export default function Navbar() {
           </div>
           
           <div className="hidden md:flex items-center space-x-4">
+            <ThemeToggle />
             {!isAuthenticated ? (
               <>
                 <Button variant="ghost" onClick={handleLogin} data-testid="button-login">
@@ -97,7 +99,8 @@ export default function Navbar() {
             )}
           </div>
           
-          <div className="md:hidden">
+          <div className="md:hidden flex items-center space-x-2">
+            <ThemeToggle />
             <Button
               variant="ghost"
               size="sm"

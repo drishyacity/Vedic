@@ -30,10 +30,10 @@ export default function Courses() {
   const filteredCourses = courses.filter((course) => {
     const matchesSearch = course.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          course.description?.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = !selectedCategory || course.category?.name === selectedCategory;
+    const matchesCategory = !selectedCategory || selectedCategory === "all" || course.category?.name === selectedCategory;
     
     let matchesPrice = true;
-    if (priceRange) {
+    if (priceRange && priceRange !== "all") {
       const price = parseFloat(course.price);
       switch (priceRange) {
         case "low":
@@ -93,7 +93,7 @@ export default function Courses() {
                   <SelectValue placeholder="Category" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="" data-testid="option-all-categories">All Categories</SelectItem>
+                  <SelectItem value="all" data-testid="option-all-categories">All Categories</SelectItem>
                   {categories.map((category) => (
                     <SelectItem 
                       key={category.id} 
@@ -111,7 +111,7 @@ export default function Courses() {
                   <SelectValue placeholder="Price Range" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="" data-testid="option-all-prices">All Prices</SelectItem>
+                  <SelectItem value="all" data-testid="option-all-prices">All Prices</SelectItem>
                   <SelectItem value="low" data-testid="option-price-low">Under ₹3,000</SelectItem>
                   <SelectItem value="medium" data-testid="option-price-medium">₹3,000 - ₹5,000</SelectItem>
                   <SelectItem value="high" data-testid="option-price-high">Above ₹5,000</SelectItem>
@@ -122,8 +122,8 @@ export default function Courses() {
                 variant="outline"
                 onClick={() => {
                   setSearchTerm("");
-                  setSelectedCategory("");
-                  setPriceRange("");
+                  setSelectedCategory("all");
+                  setPriceRange("all");
                 }}
                 data-testid="button-clear-filters"
               >
@@ -160,8 +160,8 @@ export default function Courses() {
             <Button
               onClick={() => {
                 setSearchTerm("");
-                setSelectedCategory("");
-                setPriceRange("");
+                setSelectedCategory("all");
+                setPriceRange("all");
               }}
               className="mt-4"
               data-testid="button-show-all"
