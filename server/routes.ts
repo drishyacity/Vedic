@@ -34,23 +34,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
     // Validate admin credentials
     if (username === 'admin' && password === 'admin123') {
       try {
-        // Get the admin user from database
-        const adminUser = await storage.getUser('admin');
-        if (adminUser) {
-          // Set up admin session manually
-          (req as any).user = {
-            id: 'admin',
-            claims: { sub: 'admin' },
-            expires_at: Math.floor(Date.now() / 1000) + (7 * 24 * 60 * 60) // 7 days
-          };
-          
-          // Mark as authenticated
-          (req.session as any).passport = { user: 'admin' };
-          
-          res.json({ success: true, user: adminUser });
-        } else {
-          res.status(500).json({ message: "Admin user not found" });
-        }
+        // Create admin user object without database dependency for now
+        const adminUser = {
+          id: 'admin',
+          email: 'admin@system.local',
+          firstName: 'Super',
+          lastName: 'Admin',
+          role: 'admin',
+          profileImageUrl: null,
+          createdAt: new Date(),
+          updatedAt: new Date()
+        };
+        
+        // Set up admin session manually
+        (req as any).user = {
+          id: 'admin',
+          claims: { sub: 'admin' },
+          expires_at: Math.floor(Date.now() / 1000) + (7 * 24 * 60 * 60) // 7 days
+        };
+        
+        // Mark as authenticated
+        (req.session as any).passport = { user: 'admin' };
+        
+        res.json({ success: true, user: adminUser });
       } catch (error) {
         console.error("Error during admin login:", error);
         res.status(500).json({ message: "Login failed" });

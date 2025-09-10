@@ -103,8 +103,25 @@ export async function setupAuth(app: Express) {
     passport.use(strategy);
   }
 
-  passport.serializeUser((user: Express.User, cb) => cb(null, user));
-  passport.deserializeUser((user: Express.User, cb) => cb(null, user));
+  passport.serializeUser((user: any, cb) => {
+    // Handle both OAuth and admin users
+    const userId = user.claims?.sub || user.id || user;
+    cb(null, userId);
+  });
+  
+  passport.deserializeUser((userId: string, cb) => {
+    // Handle admin user sessions
+    if (userId === 'admin') {
+      cb(null, {
+        id: 'admin',
+        claims: { sub: 'admin' },
+        expires_at: Math.floor(Date.now() / 1000) + (7 * 24 * 60 * 60)
+      });
+    } else {
+      // Handle OAuth users
+      cb(null, { claims: { sub: userId } });
+    }
+  });
 
   app.get("/api/login", (req, res, next) => {
     passport.authenticate(`replitauth:${req.hostname}`, {
