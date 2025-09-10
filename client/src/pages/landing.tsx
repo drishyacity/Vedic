@@ -29,11 +29,11 @@ export default function Landing() {
       <section className="gradient-bg hero-pattern text-primary-foreground py-20" data-testid="hero-section">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center space-y-8">
-            <h1 className="text-4xl md:text-6xl font-bold leading-tight" data-testid="hero-title">
+            <h1 className="text-4xl md:text-6xl font-bold leading-tight text-hero" data-testid="hero-title">
               Learn Ancient Indian Wisdom<br />
-              <span className="text-primary-foreground">the Modern Way</span>
+              <span className="text-hero">the Modern Way</span>
             </h1>
-            <p className="text-xl md:text-2xl text-primary-foreground/90 max-w-3xl mx-auto" data-testid="hero-description">
+            <p className="text-xl md:text-2xl text-hero-secondary max-w-3xl mx-auto" data-testid="hero-description">
               Master the Vedas, Gita, Sanskrit, Ancient Mathematics, and Yoga through interactive online courses with expert mentors
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-8">
@@ -48,7 +48,7 @@ export default function Landing() {
               <Button
                 size="lg"
                 variant="outline"
-                className="border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10 w-full sm:w-auto"
+                className="border-hero-text text-hero hover:bg-hero-text-10 w-full sm:w-auto"
                 onClick={handleLogin}
                 data-testid="button-watch-demo"
               >

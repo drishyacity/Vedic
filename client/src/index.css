@@ -40,6 +40,9 @@
   --font-serif: Crimson Text, serif;
   --font-mono: Menlo, monospace;
   --radius: 0.75rem;
+  /* Hero section text colors for light mode */
+  --hero-text: hsl(0, 0%, 100%);
+  --hero-text-secondary: hsl(0, 0%, 95%);
 }
 
 .dark {
@@ -70,6 +73,9 @@
   --sidebar-accent-foreground: hsl(20, 14.3%, 4.1%);
   --sidebar-border: hsl(20, 14.3%, 12%);
   --sidebar-ring: hsl(20, 90%, 58%);
+  /* Hero section text colors for dark mode */
+  --hero-text: hsl(0, 0%, 100%);
+  --hero-text-secondary: hsl(0, 0%, 90%);
 }
 
 @layer base {
@@ -150,4 +156,21 @@
 
 ::-webkit-scrollbar-thumb:hover {
   background: hsl(var(--foreground) / 0.4);
+}
+
+/* Hero text color utilities */
+.text-hero {
+  color: hsl(var(--hero-text));
+}
+
+.text-hero-secondary {
+  color: hsl(var(--hero-text-secondary));
+}
+
+.border-hero-text {
+  border-color: hsl(var(--hero-text) / 0.3);
+}
+
+.hover\:bg-hero-text-10:hover {
+  background-color: hsl(var(--hero-text) / 0.1);
 }
