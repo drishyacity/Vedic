@@ -16,6 +16,7 @@ import AdminDashboard from "@/pages/admin/dashboard";
 import AdminCourses from "@/pages/admin/courses";
 import AdminStudents from "@/pages/admin/students";
 import AdminPayments from "@/pages/admin/payments";
+import AdminLogin from "@/pages/admin-login";
 
 function Router() {
   const { isAuthenticated, isLoading, user } = useAuth();
@@ -27,6 +28,7 @@ function Router() {
           <Route path="/" component={Landing} />
           <Route path="/courses" component={Courses} />
           <Route path="/course/:slug" component={CourseDetail} />
+          <Route path="/admin-login" component={AdminLogin} />
         </>
       ) : (
         <>

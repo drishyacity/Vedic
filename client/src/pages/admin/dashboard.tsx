@@ -38,18 +38,6 @@ export default function AdminDashboard() {
   const { data: courses = [] } = useQuery<Course[]>({
     queryKey: ["/api/courses"],
     enabled: isAuthenticated && user?.role === 'admin',
-    onError: (error: Error) => {
-      if (isUnauthorizedError(error)) {
-        toast({
-          title: "Unauthorized",
-          description: "You are logged out. Logging in again...",
-          variant: "destructive",
-        });
-        setTimeout(() => {
-          window.location.href = "/api/login";
-        }, 500);
-      }
-    },
   });
 
   const { data: batches = [] } = useQuery<Batch[]>({
@@ -78,8 +66,8 @@ export default function AdminDashboard() {
     );
   }
 
-  const activeCourses = courses.filter(course => course.isActive);
-  const activeBatches = batches.filter(batch => batch.isActive);
+  const activeCourses = courses.filter((course: any) => course.isActive);
+  const activeBatches = batches.filter((batch: any) => batch.isActive);
   const totalStudents = 1247; // This would come from a proper API endpoint
   const monthlyRevenue = 420000; // This would come from orders aggregation
 
@@ -167,7 +155,7 @@ export default function AdminDashboard() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    {activeCourses.slice(0, 5).map((course) => (
+                    {activeCourses.slice(0, 5).map((course: any) => (
                       <div key={course.id} className="flex items-center justify-between p-3 border border-border rounded-lg" data-testid={`recent-course-${course.id}`}>
                         <div className="flex items-center space-x-3">
                           <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">

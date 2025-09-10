@@ -1,7 +1,9 @@
 import type { Express } from "express";
+import express, { type Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
+import bcrypt from "bcryptjs";
 import { 
   insertCourseSchema, insertBatchSchema, insertEnrollmentSchema,
   insertLectureSchema, insertResourceSchema, insertOrderSchema,
@@ -16,13 +18,56 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Auth routes
   app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.claims ? req.user.claims.sub : req.user.id;
       const user = await storage.getUser(userId);
       res.json(user);
     } catch (error) {
       console.error("Error fetching user:", error);
       res.status(500).json({ message: "Failed to fetch user" });
     }
+  });
+
+  // Admin login route
+  app.post('/api/auth/admin-login', async (req: Request, res: Response) => {
+    const { username, password } = req.body;
+    
+    // Validate admin credentials
+    if (username === 'admin' && password === 'admin123') {
+      try {
+        // Get the admin user from database
+        const adminUser = await storage.getUser('admin');
+        if (adminUser) {
+          // Set up admin session manually
+          (req as any).user = {
+            id: 'admin',
+            claims: { sub: 'admin' },
+            expires_at: Math.floor(Date.now() / 1000) + (7 * 24 * 60 * 60) // 7 days
+          };
+          
+          // Mark as authenticated
+          (req.session as any).passport = { user: 'admin' };
+          
+          res.json({ success: true, user: adminUser });
+        } else {
+          res.status(500).json({ message: "Admin user not found" });
+        }
+      } catch (error) {
+        console.error("Error during admin login:", error);
+        res.status(500).json({ message: "Login failed" });
+      }
+    } else {
+      res.status(401).json({ message: "Invalid admin credentials" });
+    }
+  });
+
+  // Admin logout route
+  app.post('/api/auth/admin-logout', (req: Request, res: Response) => {
+    req.logout((err) => {
+      if (err) {
+        return res.status(500).json({ message: "Logout failed" });
+      }
+      res.json({ success: true });
+    });
   });
 
   // Categories routes
