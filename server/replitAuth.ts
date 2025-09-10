@@ -152,7 +152,17 @@ export async function setupAuth(app: Express) {
 export const isAuthenticated: RequestHandler = async (req, res, next) => {
   const user = req.user as any;
 
-  if (!req.isAuthenticated() || !user.expires_at) {
+  if (!req.isAuthenticated()) {
+    return res.status(401).json({ message: "Unauthorized" });
+  }
+
+  // Handle admin user without expiry check
+  if (user && user.claims && user.claims.sub === 'admin') {
+    return next();
+  }
+
+  // Handle OAuth users with expiry check
+  if (!user.expires_at) {
     return res.status(401).json({ message: "Unauthorized" });
   }
 

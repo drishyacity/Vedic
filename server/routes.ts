@@ -77,10 +77,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }, (err) => {
           if (err) {
             console.error("Login error:", err);
+            return res.status(500).json({ message: "Session creation failed" });
           }
+          // Send response only after successful login
+          res.json({ success: true, user: adminUser });
         });
-        
-        res.json({ success: true, user: adminUser });
       } catch (error) {
         console.error("Error during admin login:", error);
         res.status(500).json({ message: "Login failed" });
