@@ -167,6 +167,10 @@
   color: hsl(var(--hero-text-secondary));
 }
 
+.text-hero-golden {
+  color: hsl(43, 85%, 65%); /* Orange-golden color */
+}
+
 .border-hero-text {
   border-color: hsl(var(--hero-text) / 0.3);
 }

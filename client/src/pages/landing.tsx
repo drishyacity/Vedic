@@ -31,7 +31,7 @@ export default function Landing() {
           <div className="text-center space-y-8">
             <h1 className="text-4xl md:text-6xl font-bold leading-tight text-hero" data-testid="hero-title">
               Learn Ancient Indian Wisdom<br />
-              <span className="text-hero">the Modern Way</span>
+              <span className="text-hero-golden">the Modern Way</span>
             </h1>
             <p className="text-xl md:text-2xl text-hero-secondary max-w-3xl mx-auto" data-testid="hero-description">
               Master the Vedas, Gita, Sanskrit, Ancient Mathematics, and Yoga through interactive online courses with expert mentors
@@ -290,13 +290,13 @@ export default function Landing() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 gradient-bg hero-pattern text-primary-foreground" data-testid="cta-section">
+      <section className="py-20 gradient-bg hero-pattern" data-testid="cta-section">
         <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl md:text-5xl font-bold mb-6" data-testid="cta-title">
+          <h2 className="text-3xl md:text-5xl font-bold mb-6 text-hero" data-testid="cta-title">
             Begin Your Journey of
             <span className="text-accent"> Ancient Wisdom</span>
           </h2>
-          <p className="text-xl text-primary-foreground/90 mb-8 max-w-2xl mx-auto" data-testid="cta-description">
+          <p className="text-xl text-hero-secondary mb-8 max-w-2xl mx-auto" data-testid="cta-description">
             Join thousands of students who are rediscovering the timeless teachings of our ancestors through modern, interactive learning
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
@@ -311,7 +311,7 @@ export default function Landing() {
             <Button
               size="lg"
               variant="outline"
-              className="border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10 w-full sm:w-auto"
+              className="border-white/30 text-white hover:bg-white/10 w-full sm:w-auto"
               onClick={handleLogin}
               data-testid="button-schedule-demo"
             >
