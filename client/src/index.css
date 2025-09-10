@@ -11,11 +11,11 @@
   --popover: hsl(30, 50%, 98%);
   --popover-foreground: hsl(20, 14.3%, 4.1%);
   --primary: hsl(20, 90%, 58%);
-  --primary-foreground: hsl(0, 0%, 98%);
+  --primary-foreground: hsl(0, 0%, 100%);
   --secondary: hsl(25, 85%, 48%);
-  --secondary-foreground: hsl(0, 0%, 98%);
+  --secondary-foreground: hsl(0, 0%, 100%);
   --muted: hsl(30, 20%, 94%);
-  --muted-foreground: hsl(20, 5.9%, 45.1%);
+  --muted-foreground: hsl(20, 14.3%, 35%);
   --accent: hsl(43, 74%, 66%);
   --accent-foreground: hsl(20, 14.3%, 4.1%);
   --destructive: hsl(0, 84.2%, 60.2%);
@@ -31,7 +31,7 @@
   --sidebar: hsl(30, 50%, 98%);
   --sidebar-foreground: hsl(20, 14.3%, 4.1%);
   --sidebar-primary: hsl(20, 90%, 58%);
-  --sidebar-primary-foreground: hsl(0, 0%, 98%);
+  --sidebar-primary-foreground: hsl(0, 0%, 100%);
   --sidebar-accent: hsl(43, 74%, 66%);
   --sidebar-accent-foreground: hsl(20, 14.3%, 4.1%);
   --sidebar-border: hsl(30, 20%, 88%);
@@ -45,16 +45,16 @@
 .dark {
   --background: hsl(20, 14.3%, 4.1%);
   --foreground: hsl(30, 40%, 96%);
-  --card: hsl(20, 14.3%, 4.1%);
+  --card: hsl(20, 14.3%, 8%);
   --card-foreground: hsl(30, 40%, 96%);
   --popover: hsl(20, 14.3%, 4.1%);
   --popover-foreground: hsl(30, 40%, 96%);
   --primary: hsl(20, 90%, 58%);
-  --primary-foreground: hsl(20, 14.3%, 4.1%);
+  --primary-foreground: hsl(0, 0%, 100%);
   --secondary: hsl(25, 85%, 48%);
-  --secondary-foreground: hsl(30, 40%, 96%);
+  --secondary-foreground: hsl(0, 0%, 100%);
   --muted: hsl(20, 14.3%, 8%);
-  --muted-foreground: hsl(30, 5%, 45%);
+  --muted-foreground: hsl(30, 5%, 65%);
   --accent: hsl(43, 74%, 66%);
   --accent-foreground: hsl(20, 14.3%, 4.1%);
   --destructive: hsl(0, 84.2%, 60.2%);
@@ -65,7 +65,7 @@
   --sidebar: hsl(20, 14.3%, 4.1%);
   --sidebar-foreground: hsl(30, 40%, 96%);
   --sidebar-primary: hsl(20, 90%, 58%);
-  --sidebar-primary-foreground: hsl(20, 14.3%, 4.1%);
+  --sidebar-primary-foreground: hsl(0, 0%, 100%);
   --sidebar-accent: hsl(43, 74%, 66%);
   --sidebar-accent-foreground: hsl(20, 14.3%, 4.1%);
   --sidebar-border: hsl(20, 14.3%, 12%);
