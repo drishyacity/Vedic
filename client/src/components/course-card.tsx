@@ -17,13 +17,13 @@ export default function CourseCard({ course, onEnroll }: CourseCardProps) {
       case 'philosophy':
         return 'bg-secondary/10 text-secondary';
       case 'mathematics':
-        return 'bg-accent/20 text-accent-foreground';
+        return 'bg-primary/10 text-primary';
       case 'vedas':
         return 'bg-primary/10 text-primary';
       case 'wellness':
         return 'bg-secondary/10 text-secondary';
       case 'astrology':
-        return 'bg-accent/20 text-accent-foreground';
+        return 'bg-secondary/10 text-secondary';
       default:
         return 'bg-muted text-muted-foreground';
     }

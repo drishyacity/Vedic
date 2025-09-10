@@ -311,7 +311,7 @@ export default function Landing() {
             <Button
               size="lg"
               variant="outline"
-              className="border-white/30 text-white hover:bg-white/10 w-full sm:w-auto"
+              className="border-hero-text text-hero hover:bg-hero-text-10 w-full sm:w-auto"
               onClick={handleLogin}
               data-testid="button-schedule-demo"
             >
@@ -322,7 +322,7 @@ export default function Landing() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-foreground text-background py-16" data-testid="footer">
+      <footer className="bg-slate-900 text-white py-16" data-testid="footer">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div className="space-y-4">
@@ -332,49 +332,49 @@ export default function Landing() {
                 </div>
                 <span className="text-xl font-bold">Vedic</span>
               </div>
-              <p className="text-background/80">
+              <p className="text-gray-300">
                 Learn ancient Indian wisdom through modern, interactive online courses with expert mentors and authentic teachings.
               </p>
             </div>
 
             <div>
-              <h4 className="font-semibold text-background mb-4">Courses</h4>
-              <ul className="space-y-2 text-background/80">
-                <li><a href="/courses" className="hover:text-background transition-colors">Sanskrit Language</a></li>
-                <li><a href="/courses" className="hover:text-background transition-colors">Bhagavad Gita</a></li>
-                <li><a href="/courses" className="hover:text-background transition-colors">Vedic Studies</a></li>
-                <li><a href="/courses" className="hover:text-background transition-colors">Ancient Mathematics</a></li>
-                <li><a href="/courses" className="hover:text-background transition-colors">Yoga & Meditation</a></li>
+              <h4 className="font-semibold text-white mb-4">Courses</h4>
+              <ul className="space-y-2 text-gray-300">
+                <li><a href="/courses" className="hover:text-white transition-colors">Sanskrit Language</a></li>
+                <li><a href="/courses" className="hover:text-white transition-colors">Bhagavad Gita</a></li>
+                <li><a href="/courses" className="hover:text-white transition-colors">Vedic Studies</a></li>
+                <li><a href="/courses" className="hover:text-white transition-colors">Ancient Mathematics</a></li>
+                <li><a href="/courses" className="hover:text-white transition-colors">Yoga & Meditation</a></li>
               </ul>
             </div>
 
             <div>
-              <h4 className="font-semibold text-background mb-4">Support</h4>
-              <ul className="space-y-2 text-background/80">
-                <li><a href="#" className="hover:text-background transition-colors">Help Center</a></li>
-                <li><a href="#" className="hover:text-background transition-colors">Contact Us</a></li>
-                <li><a href="#" className="hover:text-background transition-colors">FAQ</a></li>
-                <li><a href="#" className="hover:text-background transition-colors">Student Portal</a></li>
+              <h4 className="font-semibold text-white mb-4">Support</h4>
+              <ul className="space-y-2 text-gray-300">
+                <li><a href="#" className="hover:text-white transition-colors">Help Center</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">Contact Us</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">FAQ</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">Student Portal</a></li>
               </ul>
             </div>
 
             <div>
-              <h4 className="font-semibold text-background mb-4">Legal</h4>
-              <ul className="space-y-2 text-background/80">
-                <li><a href="#" className="hover:text-background transition-colors">Privacy Policy</a></li>
-                <li><a href="#" className="hover:text-background transition-colors">Terms of Service</a></li>
-                <li><a href="#" className="hover:text-background transition-colors">Refund Policy</a></li>
+              <h4 className="font-semibold text-white mb-4">Legal</h4>
+              <ul className="space-y-2 text-gray-300">
+                <li><a href="#" className="hover:text-white transition-colors">Privacy Policy</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">Terms of Service</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">Refund Policy</a></li>
               </ul>
             </div>
           </div>
 
-          <div className="border-t border-background/20 mt-12 pt-8">
+          <div className="border-t border-gray-700 mt-12 pt-8">
             <div className="flex flex-col md:flex-row items-center justify-between">
-              <p className="text-background/60 text-sm">
+              <p className="text-gray-400 text-sm">
                 © 2024 Vedic Learning Platform. All rights reserved.
               </p>
               <div className="flex items-center space-x-2 mt-4 md:mt-0">
-                <span className="text-background/60 text-sm">Made with ❤️ for preserving ancient wisdom</span>
+                <span className="text-gray-400 text-sm">Made with ❤️ for preserving ancient wisdom</span>
               </div>
             </div>
           </div>
