@@ -31,7 +31,7 @@ export default function Landing() {
           <div className="text-center space-y-8">
             <h1 className="text-4xl md:text-6xl font-bold leading-tight" data-testid="hero-title">
               Learn Ancient Indian Wisdom<br />
-              <span className="text-accent">the Modern Way</span>
+              <span className="text-primary-foreground">the Modern Way</span>
             </h1>
             <p className="text-xl md:text-2xl text-primary-foreground/90 max-w-3xl mx-auto" data-testid="hero-description">
               Master the Vedas, Gita, Sanskrit, Ancient Mathematics, and Yoga through interactive online courses with expert mentors
@@ -79,7 +79,7 @@ export default function Landing() {
             </div>
             <div className="text-center" data-testid="stat-completion">
               <div className="w-16 h-16 bg-accent/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                <TrendingUp className="h-8 w-8 text-accent-foreground" />
+                <TrendingUp className="h-8 w-8 text-primary" />
               </div>
               <div className="text-3xl font-bold text-foreground">94%</div>
               <div className="text-muted-foreground">Completion Rate</div>
