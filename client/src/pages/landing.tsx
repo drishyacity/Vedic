@@ -26,7 +26,7 @@ export default function Landing() {
       <Navbar />
 
       {/* Hero Section */}
-      <section className="gradient-bg hero-pattern text-primary-foreground py-20" data-testid="hero-section">
+      <section className="gradient-bg hero-pattern py-20" data-testid="hero-section">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center space-y-8">
             <h1 className="text-4xl md:text-6xl font-bold leading-tight text-hero" data-testid="hero-title">
@@ -48,7 +48,7 @@ export default function Landing() {
               <Button
                 size="lg"
                 variant="outline"
-                className="border-hero-text text-hero hover:bg-hero-text-10 w-full sm:w-auto"
+                className="border-white/30 text-white hover:bg-white/10 w-full sm:w-auto"
                 onClick={handleLogin}
                 data-testid="button-watch-demo"
               >
