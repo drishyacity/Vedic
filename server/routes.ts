@@ -19,6 +19,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.claims ? req.user.claims.sub : req.user.id;
+      
+      // Handle admin user separately since it's not in database
+      if (userId === 'admin') {
+        res.json({
+          id: 'admin',
+          email: 'admin@system.local',
+          firstName: 'Super',
+          lastName: 'Admin',
+          role: 'admin',
+          profileImageUrl: null,
+          createdAt: new Date(),
+          updatedAt: new Date()
+        });
+        return;
+      }
+      
       const user = await storage.getUser(userId);
       res.json(user);
     } catch (error) {
@@ -53,8 +69,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
           expires_at: Math.floor(Date.now() / 1000) + (7 * 24 * 60 * 60) // 7 days
         };
         
-        // Mark as authenticated
-        (req.session as any).passport = { user: 'admin' };
+        // Mark as authenticated in session
+        req.login({
+          id: 'admin',
+          claims: { sub: 'admin' },
+          expires_at: Math.floor(Date.now() / 1000) + (7 * 24 * 60 * 60)
+        }, (err) => {
+          if (err) {
+            console.error("Login error:", err);
+          }
+        });
         
         res.json({ success: true, user: adminUser });
       } catch (error) {
