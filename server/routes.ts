@@ -145,6 +145,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Courses routes
   app.get('/api/courses', async (req, res) => {
     try {
+      const startTime = Date.now();
       const categoryId = req.query.categoryId as string;
       let courses;
       
@@ -153,6 +154,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       } else {
         courses = await storage.getCourses();
       }
+      
+      const duration = Date.now() - startTime;
+      console.log(`[PERF] Courses loaded in ${duration}ms`);
       
       res.json(courses);
     } catch (error) {
