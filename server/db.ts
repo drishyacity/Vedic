@@ -1,12 +1,6 @@
-import { Pool, neonConfig, type PoolClient } from '@neondatabase/serverless';
-import { drizzle } from 'drizzle-orm/neon-serverless';
-import ws from "ws";
+import { Pool } from 'pg';
+import { drizzle } from 'drizzle-orm/node-postgres';
 import * as schema from "@shared/schema";
-
-// Configure neon for development environment - optimized for speed
-neonConfig.poolQueryViaFetch = true; // Use HTTP instead of WebSocket
-neonConfig.fetchConnectionCache = true; // Cache connections
-neonConfig.useSecureWebSocket = false; // Disable secure WebSocket to avoid SSL issues
 
 // Check if database is configured and attempt connection
 let pool: Pool | null = null;
@@ -15,26 +9,26 @@ let hasDatabase = false;
 
 if (process.env.DATABASE_URL) {
   try {
-    // Configure SSL settings for Neon database to handle self-signed certificates
-    const dbUrl = new URL(process.env.DATABASE_URL);
+    // Configure database connection for development environment  
+    let connectionString = process.env.DATABASE_URL;
     
-    // Remove SSL requirement from connection string for development
-    const connectionString = process.env.DATABASE_URL.replace(/\?sslmode=\w+/, '').replace(/&sslmode=\w+/, '');
+    console.log("📍 Using connection string:", connectionString.replace(/\/\/[^:]+:[^@]+@/, '//*****:*****@'));
     
-    // Test if the DATABASE_URL is valid by creating a minimal pool with SSL configuration
+    // Create pool with proper SSL configuration for development
     pool = new Pool({ 
       connectionString: connectionString,
-      max: 3, // Increase pool size for reliability
-      idleTimeoutMillis: 30000, // Longer timeout for better stability  
-      connectionTimeoutMillis: 10000, // Longer timeout for initial connection
-      ssl: false // Disable SSL for development environment
+      max: 5, // Connection pool size
+      idleTimeoutMillis: 60000, // Timeout for idle connections
+      connectionTimeoutMillis: 15000, // Timeout for new connections
+      ssl: false, // Disable SSL for development - no more certificate issues!
+      application_name: 'vedic-learning-dev' // Application identifier
     });
     
     // Create drizzle instance
-    db = drizzle({ client: pool, schema });
+    db = drizzle(pool, { schema });
     hasDatabase = true;
     
-    console.log("✅ Database connection configured successfully with SSL settings");
+    console.log("✅ Database connection configured successfully using node-postgres (SSL disabled)");
   } catch (error) {
     console.warn("⚠️  DATABASE_URL found but connection failed:", (error as Error).message);
     console.warn("⚠️  Falling back to in-memory storage. Fix DATABASE_URL or remove it to use in-memory storage.");
