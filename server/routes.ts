@@ -124,10 +124,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/categories', isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;
-      const user = await storage.getUser(userId);
       
-      if (user?.role !== 'admin') {
-        return res.status(403).json({ message: "Access denied" });
+      // Handle admin user specially - don't query database
+      if (userId === 'admin') {
+        // Admin user is authorized
+      } else {
+        const user = await storage.getUser(userId);
+        if (user?.role !== 'admin') {
+          return res.status(403).json({ message: "Access denied" });
+        }
       }
 
       const categoryData = insertCategorySchema.parse(req.body);

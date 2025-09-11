@@ -26,8 +26,8 @@ const getOidcConfig = memoize(
 export function getSession() {
   const sessionTtl = 7 * 24 * 60 * 60 * 1000; // 1 week
   
-  // Generate a secure session secret if not provided
-  const sessionSecret = process.env.SESSION_SECRET || randomBytes(64).toString('hex');
+  // Use a stable session secret to persist sessions across restarts
+  const sessionSecret = process.env.SESSION_SECRET || 'dev-session-secret-change-in-production';
   
   let sessionStore;
   
