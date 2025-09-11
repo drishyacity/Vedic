@@ -16,6 +16,10 @@ import AdminDashboard from "@/pages/admin/dashboard";
 import AdminCourses from "@/pages/admin/courses";
 import AdminStudents from "@/pages/admin/students";
 import AdminPayments from "@/pages/admin/payments";
+import AdminAnalytics from "@/pages/admin/analytics";
+import AdminResources from "@/pages/admin/resources";
+import AdminAnnouncements from "@/pages/admin/announcements";
+import AdminSettings from "@/pages/admin/settings";
 import AdminLogin from "@/pages/admin-login";
 import Admin from "@/pages/admin";
 import FAQ from "@/pages/faq";
@@ -50,6 +54,13 @@ function Router() {
           <Route path="/course/:slug" component={CourseDetail} />
           <Route path="/admin" component={Admin} />
           <Route path="/admin-login" component={() => <AdminLoginRedirect />} />
+          <Route path="/admin/courses" component={AdminCourses} />
+          <Route path="/admin/students" component={AdminStudents} />
+          <Route path="/admin/payments" component={AdminPayments} />
+          <Route path="/admin/analytics" component={AdminAnalytics} />
+          <Route path="/admin/resources" component={AdminResources} />
+          <Route path="/admin/announcements" component={AdminAnnouncements} />
+          <Route path="/admin/settings" component={AdminSettings} />
           <Route path="/faq" component={FAQ} />
           <Route path="/help-center" component={HelpCenter} />
           <Route path="/contact" component={Contact} />
@@ -71,18 +82,16 @@ function Router() {
           <Route path="/privacy" component={Privacy} />
           <Route path="/refund" component={Refund} />
           
-          {/* Unified Admin Route - accessible to everyone, handles auth internally */}
+          {/* Admin routes - accessible to everyone, handle auth internally */}
           <Route path="/admin" component={Admin} />
           <Route path="/admin-login" component={() => <AdminLoginRedirect />} />
-          
-          {/* Admin sub-routes - only accessible to authenticated admins */}
-          {user?.role === 'admin' && (
-            <>
-              <Route path="/admin/courses" component={AdminCourses} />
-              <Route path="/admin/students" component={AdminStudents} />
-              <Route path="/admin/payments" component={AdminPayments} />
-            </>
-          )}
+          <Route path="/admin/courses" component={AdminCourses} />
+          <Route path="/admin/students" component={AdminStudents} />
+          <Route path="/admin/payments" component={AdminPayments} />
+          <Route path="/admin/analytics" component={AdminAnalytics} />
+          <Route path="/admin/resources" component={AdminResources} />
+          <Route path="/admin/announcements" component={AdminAnnouncements} />
+          <Route path="/admin/settings" component={AdminSettings} />
         </>
       )}
       <Route component={NotFound} />
