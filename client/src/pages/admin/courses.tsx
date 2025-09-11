@@ -41,18 +41,25 @@ import {
   Edit, 
   Eye, 
   Trash2,
-  Search
+  Search,
+  Tag
 } from "lucide-react";
 import { useEffect } from "react";
-import { insertCourseSchema } from "@shared/schema";
-import type { Course, Category } from "@shared/schema";
+import { insertCourseSchema, insertCategorySchema } from "@shared/schema";
+import type { Course, Category, InsertCategory } from "@shared/schema";
 import { z } from "zod";
 
 const courseFormSchema = insertCourseSchema.extend({
   categoryId: z.number().min(1, "Please select a category"),
 });
 
+const categoryFormSchema = insertCategorySchema.extend({
+  name: z.string().min(1, "Category name is required"),
+  slug: z.string().min(1, "Category slug is required"),
+});
+
 type CourseFormData = z.infer<typeof courseFormSchema>;
+type CategoryFormData = z.infer<typeof categoryFormSchema>;
 
 export default function AdminCourses() {
   const { user, isAuthenticated, isLoading } = useAuth();
@@ -60,6 +67,7 @@ export default function AdminCourses() {
   const queryClient = useQueryClient();
   const [searchTerm, setSearchTerm] = useState("");
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [isCategoryDialogOpen, setIsCategoryDialogOpen] = useState(false);
   const [editingCourse, setEditingCourse] = useState<Course | null>(null);
 
   useEffect(() => {
@@ -87,6 +95,15 @@ export default function AdminCourses() {
       duration: "",
       thumbnail: "",
       isActive: true,
+    },
+  });
+
+  const categoryForm = useForm<CategoryFormData>({
+    resolver: zodResolver(categoryFormSchema),
+    defaultValues: {
+      name: "",
+      slug: "",
+      description: "",
     },
   });
 
@@ -197,6 +214,42 @@ export default function AdminCourses() {
     },
   });
 
+  const createCategoryMutation = useMutation({
+    mutationFn: async (data: CategoryFormData) => {
+      const response = await apiRequest("POST", "/api/categories", data);
+      return await response.json();
+    },
+    onSuccess: (newCategory) => {
+      queryClient.invalidateQueries({ queryKey: ["/api/categories"] });
+      setIsCategoryDialogOpen(false);
+      categoryForm.reset();
+      // Auto-select the newly created category
+      form.setValue("categoryId", newCategory.id);
+      toast({
+        title: "Success",
+        description: "Category created successfully",
+      });
+    },
+    onError: (error: Error) => {
+      if (isUnauthorizedError(error)) {
+        toast({
+          title: "Unauthorized",
+          description: "You are logged out. Logging in again...",
+          variant: "destructive",
+        });
+        setTimeout(() => {
+          window.location.href = "/api/login";
+        }, 500);
+        return;
+      }
+      toast({
+        title: "Error",
+        description: "Failed to create category",
+        variant: "destructive",
+      });
+    },
+  });
+
   const courseList: Course[] = courses || [];
   const filteredCourses = courseList.filter((course: Course) =>
     course.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -209,6 +262,10 @@ export default function AdminCourses() {
     } else {
       createCourseMutation.mutate(data);
     }
+  };
+
+  const onCategorySubmit = (data: CategoryFormData) => {
+    createCategoryMutation.mutate(data);
   };
 
   const handleEdit = (course: Course) => {
@@ -336,7 +393,19 @@ export default function AdminCourses() {
                           name="categoryId"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Category</FormLabel>
+                              <FormLabel className="flex items-center justify-between">
+                                Category
+                                <Button
+                                  type="button"
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => setIsCategoryDialogOpen(true)}
+                                  data-testid="button-add-category"
+                                >
+                                  <Plus className="h-3 w-3 mr-1" />
+                                  New
+                                </Button>
+                              </FormLabel>
                               <Select onValueChange={(value) => field.onChange(parseInt(value))} value={field.value?.toString()}>
                                 <FormControl>
                                   <SelectTrigger data-testid="select-category">
@@ -401,6 +470,81 @@ export default function AdminCourses() {
                         >
                           {createCourseMutation.isPending || updateCourseMutation.isPending ? "Saving..." : 
                            editingCourse ? "Update Course" : "Create Course"}
+                        </Button>
+                      </div>
+                    </form>
+                  </Form>
+                </DialogContent>
+              </Dialog>
+
+              {/* Category Creation Dialog */}
+              <Dialog open={isCategoryDialogOpen} onOpenChange={setIsCategoryDialogOpen}>
+                <DialogContent className="max-w-md">
+                  <DialogHeader>
+                    <DialogTitle className="flex items-center space-x-2">
+                      <Tag className="h-5 w-5" />
+                      <span>Create New Category</span>
+                    </DialogTitle>
+                  </DialogHeader>
+                  <Form {...categoryForm}>
+                    <form onSubmit={categoryForm.handleSubmit(onCategorySubmit)} className="space-y-4" data-testid="category-form">
+                      <FormField
+                        control={categoryForm.control}
+                        name="name"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Name</FormLabel>
+                            <FormControl>
+                              <Input {...field} placeholder="e.g., Vedic Science" data-testid="input-category-name" />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      
+                      <FormField
+                        control={categoryForm.control}
+                        name="slug"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Slug</FormLabel>
+                            <FormControl>
+                              <Input {...field} placeholder="e.g., vedic-science" data-testid="input-category-slug" />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={categoryForm.control}
+                        name="description"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Description (Optional)</FormLabel>
+                            <FormControl>
+                              <Textarea {...field} value={field.value || ""} rows={2} placeholder="Brief description of the category" data-testid="input-category-description" />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <div className="flex justify-end space-x-4 pt-4">
+                        <Button 
+                          type="button" 
+                          variant="outline" 
+                          onClick={() => setIsCategoryDialogOpen(false)}
+                          data-testid="button-cancel-category"
+                        >
+                          Cancel
+                        </Button>
+                        <Button 
+                          type="submit" 
+                          disabled={createCategoryMutation.isPending}
+                          data-testid="button-submit-category"
+                        >
+                          {createCategoryMutation.isPending ? "Creating..." : "Create Category"}
                         </Button>
                       </div>
                     </form>
