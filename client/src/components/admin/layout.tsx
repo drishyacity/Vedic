@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Menu } from "lucide-react";
+import ThemeToggle from "@/components/theme-toggle";
 import { 
   LayoutDashboard,
   BookOpen,
@@ -199,16 +200,19 @@ export default function AdminLayout({ children, title, description }: AdminLayou
                 <p className="text-sm text-muted-foreground">{description}</p>
               )}
             </div>
-            <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
-              <SheetTrigger asChild>
-                <Button variant="outline" size="icon" data-testid="mobile-menu-trigger">
-                  <Menu className="h-4 w-4" />
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="left" className="p-0 w-80" data-testid="mobile-sidebar">
-                <Sidebar onItemClick={() => setSidebarOpen(false)} />
-              </SheetContent>
-            </Sheet>
+            <div className="flex items-center gap-2">
+              <ThemeToggle />
+              <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
+                <SheetTrigger asChild>
+                  <Button variant="outline" size="icon" data-testid="mobile-menu-trigger">
+                    <Menu className="h-4 w-4" />
+                  </Button>
+                </SheetTrigger>
+                <SheetContent side="left" className="p-0 w-80" data-testid="mobile-sidebar">
+                  <Sidebar onItemClick={() => setSidebarOpen(false)} />
+                </SheetContent>
+              </Sheet>
+            </div>
           </div>
           <main className="p-4 sm:p-6">
             {children}
@@ -223,10 +227,15 @@ export default function AdminLayout({ children, title, description }: AdminLayou
           <main className="flex-1 overflow-auto">
             <div className="p-6 lg:p-8">
               <div className="mb-6 lg:mb-8" data-testid="admin-header">
-                <h1 className="text-2xl lg:text-3xl font-bold text-foreground mb-2">{title}</h1>
-                {description && (
-                  <p className="text-muted-foreground">{description}</p>
-                )}
+                <div className="flex items-start justify-between">
+                  <div>
+                    <h1 className="text-2xl lg:text-3xl font-bold text-foreground mb-2">{title}</h1>
+                    {description && (
+                      <p className="text-muted-foreground">{description}</p>
+                    )}
+                  </div>
+                  <ThemeToggle />
+                </div>
               </div>
               {children}
             </div>

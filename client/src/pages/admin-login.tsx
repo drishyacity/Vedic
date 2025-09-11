@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 import { Lock, User } from "lucide-react";
+import ThemeToggle from "@/components/theme-toggle";
 
 const adminLoginSchema = z.object({
   username: z.string().min(1, "Username is required"),
@@ -67,7 +68,10 @@ export default function AdminLogin() {
   };
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
+    <div className="min-h-screen bg-background flex items-center justify-center p-4 relative">
+      <div className="absolute top-4 right-4">
+        <ThemeToggle />
+      </div>
       <Card className="w-full max-w-md" data-testid="admin-login-card">
         <CardHeader className="text-center">
           <div className="w-16 h-16 mx-auto bg-primary rounded-full flex items-center justify-center mb-4">
