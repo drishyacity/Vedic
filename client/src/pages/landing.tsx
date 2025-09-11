@@ -351,19 +351,19 @@ export default function Landing() {
             <div>
               <h4 className="font-semibold text-white mb-4">Support</h4>
               <ul className="space-y-2 text-gray-300">
-                <li><a href="#" className="hover:text-white transition-colors">Help Center</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Contact Us</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">FAQ</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Student Portal</a></li>
+                <li><a href="/help-center" className="hover:text-white transition-colors" data-testid="footer-help-center">Help Center</a></li>
+                <li><a href="/contact" className="hover:text-white transition-colors" data-testid="footer-contact">Contact Us</a></li>
+                <li><a href="/faq" className="hover:text-white transition-colors" data-testid="footer-faq">FAQ</a></li>
+                <li><a href="/admin-login" className="hover:text-white transition-colors" data-testid="footer-student-portal">Student Portal</a></li>
               </ul>
             </div>
 
             <div>
               <h4 className="font-semibold text-white mb-4">Legal</h4>
               <ul className="space-y-2 text-gray-300">
-                <li><a href="#" className="hover:text-white transition-colors">Privacy Policy</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Terms of Service</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Refund Policy</a></li>
+                <li><a href="/privacy" className="hover:text-white transition-colors" data-testid="footer-privacy">Privacy Policy</a></li>
+                <li><a href="/terms" className="hover:text-white transition-colors" data-testid="footer-terms">Terms of Service</a></li>
+                <li><a href="/refund" className="hover:text-white transition-colors" data-testid="footer-refund">Refund Policy</a></li>
               </ul>
             </div>
           </div>
