@@ -53,7 +53,7 @@ function Router() {
           <Route path="/courses" component={Courses} />
           <Route path="/course/:slug" component={CourseDetail} />
           <Route path="/admin" component={Admin} />
-          <Route path="/admin-login" component={() => <AdminLoginRedirect />} />
+          <Route path="/admin-login" component={AdminLogin} />
           <Route path="/admin/courses" component={AdminCourses} />
           <Route path="/admin/students" component={AdminStudents} />
           <Route path="/admin/payments" component={AdminPayments} />
@@ -84,7 +84,7 @@ function Router() {
           
           {/* Admin routes - accessible to everyone, handle auth internally */}
           <Route path="/admin" component={Admin} />
-          <Route path="/admin-login" component={() => <AdminLoginRedirect />} />
+          <Route path="/admin-login" component={AdminLogin} />
           <Route path="/admin/courses" component={AdminCourses} />
           <Route path="/admin/students" component={AdminStudents} />
           <Route path="/admin/payments" component={AdminPayments} />
@@ -102,7 +102,7 @@ function Router() {
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider defaultTheme="light">
+      <ThemeProvider defaultTheme="dark">
         <TooltipProvider>
           <Toaster />
           <Router />

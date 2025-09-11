@@ -69,7 +69,7 @@ export default function AdminLogin() {
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4 relative">
-      <div className="absolute top-4 right-4">
+      <div className="absolute top-4 right-4 z-50">
         <ThemeToggle />
       </div>
       <Card className="w-full max-w-md" data-testid="admin-login-card">
