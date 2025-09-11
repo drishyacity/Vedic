@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Navbar from "@/components/navbar";
+import Footer from "@/components/footer";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { isUnauthorizedError } from "@/lib/authUtils";
@@ -417,6 +418,7 @@ export default function Dashboard() {
           </TabsContent>
         </Tabs>
       </div>
+      <Footer />
     </div>
   );
 }

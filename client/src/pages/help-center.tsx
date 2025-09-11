@@ -3,6 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import Navbar from "@/components/navbar";
+import Footer from "@/components/footer";
 
 export default function HelpCenter() {
   const helpCategories = [
@@ -168,6 +169,7 @@ export default function HelpCenter() {
           </div>
         </div>
       </div>
+      <Footer />
     </div>
   );
 }

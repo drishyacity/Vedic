@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import Navbar from "@/components/navbar";
+import Footer from "@/components/footer";
 import CourseCard from "@/components/course-card";
 import { Star, Users, TrendingUp, Award } from "lucide-react";
 import type { Course, Category } from "@shared/schema";
@@ -321,65 +322,7 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="bg-slate-900 text-white py-16" data-testid="footer">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            <div className="space-y-4">
-              <div className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-                  <span className="text-primary-foreground text-lg">🕉</span>
-                </div>
-                <span className="text-xl font-bold">Vedic</span>
-              </div>
-              <p className="text-gray-300">
-                Learn ancient Indian wisdom through modern, interactive online courses with expert mentors and authentic teachings.
-              </p>
-            </div>
-
-            <div>
-              <h4 className="font-semibold text-white mb-4">Courses</h4>
-              <ul className="space-y-2 text-gray-300">
-                <li><a href="/courses" className="hover:text-white transition-colors">Sanskrit Language</a></li>
-                <li><a href="/courses" className="hover:text-white transition-colors">Bhagavad Gita</a></li>
-                <li><a href="/courses" className="hover:text-white transition-colors">Vedic Studies</a></li>
-                <li><a href="/courses" className="hover:text-white transition-colors">Ancient Mathematics</a></li>
-                <li><a href="/courses" className="hover:text-white transition-colors">Yoga & Meditation</a></li>
-              </ul>
-            </div>
-
-            <div>
-              <h4 className="font-semibold text-white mb-4">Support</h4>
-              <ul className="space-y-2 text-gray-300">
-                <li><a href="/help-center" className="hover:text-white transition-colors" data-testid="footer-help-center">Help Center</a></li>
-                <li><a href="/contact" className="hover:text-white transition-colors" data-testid="footer-contact">Contact Us</a></li>
-                <li><a href="/faq" className="hover:text-white transition-colors" data-testid="footer-faq">FAQ</a></li>
-                <li><a href="/admin-login" className="hover:text-white transition-colors" data-testid="footer-student-portal">Student Portal</a></li>
-              </ul>
-            </div>
-
-            <div>
-              <h4 className="font-semibold text-white mb-4">Legal</h4>
-              <ul className="space-y-2 text-gray-300">
-                <li><a href="/privacy" className="hover:text-white transition-colors" data-testid="footer-privacy">Privacy Policy</a></li>
-                <li><a href="/terms" className="hover:text-white transition-colors" data-testid="footer-terms">Terms of Service</a></li>
-                <li><a href="/refund" className="hover:text-white transition-colors" data-testid="footer-refund">Refund Policy</a></li>
-              </ul>
-            </div>
-          </div>
-
-          <div className="border-t border-gray-700 mt-12 pt-8">
-            <div className="flex flex-col md:flex-row items-center justify-between">
-              <p className="text-gray-400 text-sm">
-                © 2024 Vedic Learning Platform. All rights reserved.
-              </p>
-              <div className="flex items-center space-x-2 mt-4 md:mt-0">
-                <span className="text-gray-400 text-sm">Made with ❤️ for preserving ancient wisdom</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }

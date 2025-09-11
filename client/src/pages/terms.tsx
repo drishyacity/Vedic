@@ -1,4 +1,5 @@
 import Navbar from "@/components/navbar";
+import Footer from "@/components/footer";
 
 export default function Terms() {
   return (
@@ -124,6 +125,7 @@ export default function Terms() {
           </section>
         </div>
       </div>
+      <Footer />
     </div>
   );
 }

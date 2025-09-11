@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import Navbar from "@/components/navbar";
+import Footer from "@/components/footer";
 import { useAuth } from "@/hooks/useAuth";
 import { Clock, Users, Award, Calendar, Star } from "lucide-react";
 import type { Course, Batch } from "@shared/schema";
@@ -314,6 +315,7 @@ export default function CourseDetail() {
           </div>
         </div>
       </div>
+      <Footer />
     </div>
   );
 }

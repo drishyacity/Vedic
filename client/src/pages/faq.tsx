@@ -1,5 +1,6 @@
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import Navbar from "@/components/navbar";
+import Footer from "@/components/footer";
 
 export default function FAQ() {
   const faqData = [
@@ -99,6 +100,7 @@ export default function FAQ() {
           </a>
         </div>
       </div>
+      <Footer />
     </div>
   );
 }

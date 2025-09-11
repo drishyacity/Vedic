@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
 import Navbar from "@/components/navbar";
+import Footer from "@/components/footer";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { isUnauthorizedError } from "@/lib/authUtils";
@@ -476,6 +477,7 @@ export default function BatchRoom() {
           </TabsContent>
         </Tabs>
       </div>
+      <Footer />
     </div>
   );
 }

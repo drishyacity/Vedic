@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import Navbar from "@/components/navbar";
+import Footer from "@/components/footer";
 import CourseCard from "@/components/course-card";
 import { Search, Filter } from "lucide-react";
 import type { Course, Category } from "@shared/schema";
@@ -211,6 +212,7 @@ export default function Courses() {
           </>
         )}
       </div>
+      <Footer />
     </div>
   );
 }

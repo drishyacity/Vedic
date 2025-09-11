@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import Navbar from "@/components/navbar";
+import Footer from "@/components/footer";
 
 export default function Contact() {
   const [formData, setFormData] = useState({
@@ -215,6 +216,7 @@ export default function Contact() {
           </div>
         </div>
       </div>
+      <Footer />
     </div>
   );
 }
