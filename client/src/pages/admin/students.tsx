@@ -45,7 +45,7 @@ export default function AdminStudents() {
   const { user, isAuthenticated, isLoading } = useAuth();
   const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState<string>("");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
 
   useEffect(() => {
     if (!isLoading && (!isAuthenticated || user?.role !== 'admin')) {
@@ -136,7 +136,7 @@ export default function AdminStudents() {
       student.lastName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       student.email?.toLowerCase().includes(searchTerm.toLowerCase());
     
-    const matchesStatus = !statusFilter || 
+    const matchesStatus = !statusFilter || statusFilter === "all" ||
       (statusFilter === "active" && (student.enrollmentCount || 0) > 0) ||
       (statusFilter === "completed" && (student.completedCourses || 0) > 0) ||
       (statusFilter === "new" && (student.enrollmentCount || 0) === 0);
@@ -242,7 +242,7 @@ export default function AdminStudents() {
                       <SelectValue placeholder="Filter by status" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="" data-testid="option-all-statuses">All Students</SelectItem>
+                      <SelectItem value="all" data-testid="option-all-statuses">All Students</SelectItem>
                       <SelectItem value="active" data-testid="option-active">Active Students</SelectItem>
                       <SelectItem value="completed" data-testid="option-completed">With Completions</SelectItem>
                       <SelectItem value="new" data-testid="option-new">New Students</SelectItem>
