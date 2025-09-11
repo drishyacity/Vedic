@@ -21,7 +21,7 @@ import {
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { isUnauthorizedError } from "@/lib/authUtils";
-import AdminSidebar from "@/components/admin/sidebar";
+import AdminLayout from "@/components/admin/layout";
 import { 
   DollarSign, 
   Search,
@@ -197,42 +197,28 @@ export default function AdminPayments() {
 
   if (isLoading || !isAuthenticated || user?.role !== 'admin') {
     return (
-      <div className="min-h-screen bg-background">
-        <div className="flex">
-          <div className="w-64 bg-muted animate-pulse" />
-          <div className="flex-1 p-8">
-            <div className="animate-pulse">
-              <div className="h-8 bg-muted rounded mb-8" />
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-                {[1, 2, 3, 4].map((i) => (
-                  <div key={i} className="h-32 bg-muted rounded" />
-                ))}
-              </div>
-              <div className="h-96 bg-muted rounded" />
-            </div>
+      <AdminLayout title="Loading..." description="Please wait...">
+        <div className="animate-pulse">
+          <div className="h-8 bg-muted rounded mb-6 sm:mb-8" />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} className="h-24 sm:h-32 bg-muted rounded" />
+            ))}
           </div>
+          <div className="h-96 bg-muted rounded" />
         </div>
-      </div>
+      </AdminLayout>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="flex">
-        <AdminSidebar />
-        
-        <div className="flex-1 overflow-auto">
-          <div className="p-8">
-            {/* Header */}
-            <div className="mb-8" data-testid="payments-header">
-              <h1 className="text-3xl font-bold text-foreground mb-2">Payment Management</h1>
-              <p className="text-muted-foreground">
-                Monitor transactions and payment status
-              </p>
-            </div>
+    <AdminLayout 
+      title="Payment Management" 
+      description="Monitor transactions and payment status"
+    >
 
-            {/* Stats Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
               <Card data-testid="stat-total-revenue">
                 <CardContent className="p-6">
                   <div className="flex items-center space-x-2">
@@ -399,9 +385,6 @@ export default function AdminPayments() {
                 )}
               </CardContent>
             </Card>
-          </div>
-        </div>
-      </div>
-    </div>
+    </AdminLayout>
   );
 }

@@ -34,7 +34,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { isUnauthorizedError } from "@/lib/authUtils";
 import { apiRequest } from "@/lib/queryClient";
-import AdminSidebar from "@/components/admin/sidebar";
+import AdminLayout from "@/components/admin/layout";
 import { 
   BookOpen, 
   Plus, 
@@ -45,7 +45,7 @@ import {
 } from "lucide-react";
 import { useEffect } from "react";
 import { insertCourseSchema } from "@shared/schema";
-import type { Course, Category, InsertCourse } from "@shared/schema";
+import type { Course, Category } from "@shared/schema";
 import { z } from "zod";
 
 const courseFormSchema = insertCourseSchema.extend({
@@ -245,36 +245,24 @@ export default function AdminCourses() {
 
   if (isLoading || !isAuthenticated || user?.role !== 'admin') {
     return (
-      <div className="min-h-screen bg-background">
-        <div className="flex">
-          <div className="w-64 bg-muted animate-pulse" />
-          <div className="flex-1 p-8">
-            <div className="animate-pulse">
-              <div className="h-8 bg-muted rounded mb-8" />
-              <div className="h-96 bg-muted rounded" />
-            </div>
-          </div>
+      <AdminLayout title="Loading..." description="Please wait...">
+        <div className="animate-pulse">
+          <div className="h-8 bg-muted rounded mb-6 sm:mb-8" />
+          <div className="h-96 bg-muted rounded" />
         </div>
-      </div>
+      </AdminLayout>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="flex">
-        <AdminSidebar />
-        
-        <div className="flex-1 overflow-auto">
-          <div className="p-8">
-            {/* Header */}
-            <div className="flex items-center justify-between mb-8" data-testid="courses-header">
-              <div>
-                <h1 className="text-3xl font-bold text-foreground mb-2">Course Management</h1>
-                <p className="text-muted-foreground">
-                  Create and manage courses for your platform
-                </p>
-              </div>
-              <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+    <AdminLayout 
+      title="Course Management" 
+      description="Create and manage courses for your platform"
+    >
+      {/* Header Actions */}
+      <div className="flex items-center justify-between mb-6 sm:mb-8" data-testid="courses-header">
+        <div className="flex-1" />
+        <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
                 <DialogTrigger asChild>
                   <Button 
                     onClick={() => {
@@ -555,9 +543,6 @@ export default function AdminCourses() {
                 )}
               </CardContent>
             </Card>
-          </div>
-        </div>
-      </div>
-    </div>
+    </AdminLayout>
   );
 }

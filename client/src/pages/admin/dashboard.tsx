@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { isUnauthorizedError } from "@/lib/authUtils";
-import AdminSidebar from "@/components/admin/sidebar";
+import AdminLayout from "@/components/admin/layout";
 import { 
   Users, 
   BookOpen, 
@@ -47,22 +47,20 @@ export default function AdminDashboard() {
 
   if (isLoading || !isAuthenticated || user?.role !== 'admin') {
     return (
-      <div className="min-h-screen bg-background">
-        <div className="flex">
-          <div className="w-64 bg-muted animate-pulse" />
-          <div className="flex-1 p-8">
-            <div className="animate-pulse">
-              <div className="h-8 bg-muted rounded mb-8" />
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-                {[1, 2, 3, 4].map((i) => (
-                  <div key={i} className="h-32 bg-muted rounded" />
-                ))}
-              </div>
-              <div className="h-96 bg-muted rounded" />
-            </div>
+      <AdminLayout title="Loading..." description="Please wait...">
+        <div className="animate-pulse">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} className="h-24 sm:h-32 bg-muted rounded" />
+            ))}
+          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-8">
+            <div className="h-64 bg-muted rounded" />
+            <div className="h-64 bg-muted rounded" />
+            <div className="h-32 bg-muted rounded lg:col-span-2" />
           </div>
         </div>
-      </div>
+      </AdminLayout>
     );
   }
 
@@ -79,72 +77,70 @@ export default function AdminDashboard() {
   ];
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="flex">
-        <AdminSidebar />
-        
-        <div className="flex-1 overflow-auto">
-          <div className="p-8">
-            {/* Header */}
-            <div className="mb-8" data-testid="admin-header">
-              <h1 className="text-3xl font-bold text-foreground mb-2">Admin Dashboard</h1>
-              <p className="text-muted-foreground">
-                Manage your Vedic learning platform
-              </p>
+    <AdminLayout 
+      title="Admin Dashboard" 
+      description="Manage your Vedic learning platform"
+    >
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
+        <Card data-testid="stat-total-students">
+          <CardContent className="p-4 sm:p-6">
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                <Users className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="text-lg sm:text-2xl font-bold text-foreground">{totalStudents.toLocaleString()}</p>
+                <p className="text-xs sm:text-sm text-muted-foreground">Total Students</p>
+              </div>
             </div>
+          </CardContent>
+        </Card>
 
-            {/* Stats Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-              <Card data-testid="stat-total-students">
-                <CardContent className="p-6">
-                  <div className="flex items-center space-x-2">
-                    <Users className="h-8 w-8 text-primary" />
-                    <div>
-                      <p className="text-2xl font-bold text-foreground">{totalStudents.toLocaleString()}</p>
-                      <p className="text-sm text-muted-foreground">Total Students</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card data-testid="stat-active-batches">
-                <CardContent className="p-6">
-                  <div className="flex items-center space-x-2">
-                    <BookOpen className="h-8 w-8 text-secondary" />
-                    <div>
-                      <p className="text-2xl font-bold text-foreground">{activeBatches.length}</p>
-                      <p className="text-sm text-muted-foreground">Active Batches</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card data-testid="stat-monthly-revenue">
-                <CardContent className="p-6">
-                  <div className="flex items-center space-x-2">
-                    <DollarSign className="h-8 w-8 text-accent-foreground" />
-                    <div>
-                      <p className="text-2xl font-bold text-foreground">₹{(monthlyRevenue / 100000).toFixed(1)}L</p>
-                      <p className="text-sm text-muted-foreground">Monthly Revenue</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card data-testid="stat-courses">
-                <CardContent className="p-6">
-                  <div className="flex items-center space-x-2">
-                    <Award className="h-8 w-8 text-primary" />
-                    <div>
-                      <p className="text-2xl font-bold text-foreground">{activeCourses.length}</p>
-                      <p className="text-sm text-muted-foreground">Active Courses</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+        <Card data-testid="stat-active-batches">
+          <CardContent className="p-4 sm:p-6">
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-secondary/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                <BookOpen className="h-5 w-5 sm:h-6 sm:w-6 text-secondary" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="text-lg sm:text-2xl font-bold text-foreground">{activeBatches.length}</p>
+                <p className="text-xs sm:text-sm text-muted-foreground">Active Batches</p>
+              </div>
             </div>
+          </CardContent>
+        </Card>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <Card data-testid="stat-monthly-revenue">
+          <CardContent className="p-4 sm:p-6">
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-accent/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                <DollarSign className="h-5 w-5 sm:h-6 sm:w-6 text-accent-foreground" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="text-lg sm:text-2xl font-bold text-foreground">₹{(monthlyRevenue / 100000).toFixed(1)}L</p>
+                <p className="text-xs sm:text-sm text-muted-foreground">Monthly Revenue</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card data-testid="stat-courses">
+          <CardContent className="p-4 sm:p-6">
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                <Award className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="text-lg sm:text-2xl font-bold text-foreground">{activeCourses.length}</p>
+                <p className="text-xs sm:text-sm text-muted-foreground">Active Courses</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-8">
               {/* Recent Courses */}
               <Card data-testid="recent-courses">
                 <CardHeader>
@@ -214,7 +210,7 @@ export default function AdminDashboard() {
                   <CardTitle>Quick Actions</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
                     <button 
                       className="p-4 border border-border rounded-lg hover:bg-muted transition-colors text-left"
                       onClick={() => window.location.href = '/admin/courses'}
@@ -255,11 +251,8 @@ export default function AdminDashboard() {
                     </button>
                   </div>
                 </CardContent>
-              </Card>
-            </div>
-          </div>
-        </div>
+        </Card>
       </div>
-    </div>
+    </AdminLayout>
   );
 }
