@@ -93,18 +93,6 @@ export default function AdminCourses() {
   const { data: courses = [], isLoading: coursesLoading } = useQuery<Course[]>({
     queryKey: ["/api/courses"],
     enabled: isAuthenticated && user?.role === 'admin',
-    onError: (error: Error) => {
-      if (isUnauthorizedError(error)) {
-        toast({
-          title: "Unauthorized",
-          description: "You are logged out. Logging in again...",
-          variant: "destructive",
-        });
-        setTimeout(() => {
-          window.location.href = "/api/login";
-        }, 500);
-      }
-    },
   });
 
   const { data: categories = [] } = useQuery<Category[]>({
@@ -209,7 +197,8 @@ export default function AdminCourses() {
     },
   });
 
-  const filteredCourses = courses.filter((course) =>
+  const courseList: Course[] = courses || [];
+  const filteredCourses = courseList.filter((course: Course) =>
     course.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
     course.description?.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -320,7 +309,7 @@ export default function AdminCourses() {
                           <FormItem>
                             <FormLabel>Description</FormLabel>
                             <FormControl>
-                              <Textarea {...field} rows={3} data-testid="input-description" />
+                              <Textarea {...field} value={field.value || ""} rows={3} data-testid="input-description" />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -374,7 +363,7 @@ export default function AdminCourses() {
                             <FormItem>
                               <FormLabel>Duration</FormLabel>
                               <FormControl>
-                                <Input {...field} placeholder="e.g., 6 months" data-testid="input-duration" />
+                                <Input {...field} value={field.value || ""} placeholder="e.g., 6 months" data-testid="input-duration" />
                               </FormControl>
                               <FormMessage />
                             </FormItem>
@@ -389,7 +378,7 @@ export default function AdminCourses() {
                           <FormItem>
                             <FormLabel>Thumbnail URL</FormLabel>
                             <FormControl>
-                              <Input {...field} placeholder="https://..." data-testid="input-thumbnail" />
+                              <Input {...field} value={field.value || ""} placeholder="https://..." data-testid="input-thumbnail" />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
