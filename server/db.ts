@@ -7,17 +7,19 @@ import * as schema from "@shared/schema";
 neonConfig.poolQueryViaFetch = true; // Use HTTP instead of WebSocket
 neonConfig.fetchConnectionCache = true; // Cache connections
 
-if (!process.env.DATABASE_URL) {
-  throw new Error(
-    "DATABASE_URL must be set. Did you forget to provision a database?",
-  );
-}
+// Check if database is configured
+export const hasDatabase = !!process.env.DATABASE_URL;
 
-// Configure the pool for development with timeouts
-export const pool = new Pool({ 
+// Only set up database connection if DATABASE_URL is provided
+export const pool = hasDatabase ? new Pool({ 
   connectionString: process.env.DATABASE_URL,
   max: 5, // Max connections
   idleTimeoutMillis: 30000, // 30 second idle timeout
   connectionTimeoutMillis: 10000 // 10 second connection timeout
-});
-export const db = drizzle({ client: pool, schema });
+}) : null;
+
+export const db = hasDatabase ? drizzle({ client: pool!, schema }) : null;
+
+if (!hasDatabase) {
+  console.warn("⚠️  DATABASE_URL not found - running with in-memory storage. Add DATABASE_URL to Replit Secrets to use persistent database.");
+}
