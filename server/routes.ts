@@ -123,16 +123,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post('/api/categories', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims ? req.user.claims.sub : req.user.id;
+      const userId = req.user.claims.sub;
+      const user = await storage.getUser(userId);
       
-      // Handle admin user separately since it's not in database
-      if (userId === 'admin') {
-        // Admin user is authorized to create categories
-      } else {
-        const user = await storage.getUser(userId);
-        if (user?.role !== 'admin') {
-          return res.status(403).json({ message: "Access denied" });
-        }
+      if (user?.role !== 'admin') {
+        return res.status(403).json({ message: "Access denied" });
       }
 
       const categoryData = insertCategorySchema.parse(req.body);

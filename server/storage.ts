@@ -393,6 +393,20 @@ export class MemoryStorage implements IStorage {
 export class DatabaseStorage implements IStorage {
   // User operations
   async getUser(id: string): Promise<User | undefined> {
+    // Handle admin user separately since it's not in database
+    if (id === 'admin') {
+      return {
+        id: 'admin',
+        email: 'admin@system.local',
+        firstName: 'Super',
+        lastName: 'Admin',
+        role: 'admin',
+        profileImageUrl: null,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      };
+    }
+    
     if (!db) throw new Error('Database not available');
     const [user] = await db.select().from(users).where(eq(users.id, id));
     return user;
