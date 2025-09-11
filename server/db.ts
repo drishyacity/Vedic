@@ -6,6 +6,7 @@ import * as schema from "@shared/schema";
 // Configure neon for development environment - optimized for speed
 neonConfig.poolQueryViaFetch = true; // Use HTTP instead of WebSocket
 neonConfig.fetchConnectionCache = true; // Cache connections
+neonConfig.useSecureWebSocket = false; // Disable secure WebSocket to avoid SSL issues
 
 // Check if database is configured and attempt connection
 let pool: Pool | null = null;
@@ -17,15 +18,16 @@ if (process.env.DATABASE_URL) {
     // Configure SSL settings for Neon database to handle self-signed certificates
     const dbUrl = new URL(process.env.DATABASE_URL);
     
+    // Remove SSL requirement from connection string for development
+    const connectionString = process.env.DATABASE_URL.replace(/\?sslmode=\w+/, '').replace(/&sslmode=\w+/, '');
+    
     // Test if the DATABASE_URL is valid by creating a minimal pool with SSL configuration
     pool = new Pool({ 
-      connectionString: process.env.DATABASE_URL,
-      max: 1, // Minimal connection for testing
-      idleTimeoutMillis: 5000, // Short timeout for testing
-      connectionTimeoutMillis: 5000, // Short timeout for testing
-      ssl: {
-        rejectUnauthorized: false // Accept self-signed certificates in development
-      }
+      connectionString: connectionString,
+      max: 3, // Increase pool size for reliability
+      idleTimeoutMillis: 30000, // Longer timeout for better stability  
+      connectionTimeoutMillis: 10000, // Longer timeout for initial connection
+      ssl: false // Disable SSL for development environment
     });
     
     // Create drizzle instance
