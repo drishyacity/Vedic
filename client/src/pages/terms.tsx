@@ -20,14 +20,14 @@ export default function Terms() {
         {/* Content */}
         <div className="prose prose-lg max-w-none text-foreground">
           <section className="mb-8" data-testid="terms-acceptance">
-            <h2 className="text-2xl font-semibold mb-4">1. Acceptance of Terms</h2>
+            <h2 className="text-2xl font-semibold mb-4 text-foreground">1. Acceptance of Terms</h2>
             <p className="text-muted-foreground mb-4">
               By accessing and using the Vedic Learning Platform, you accept and agree to be bound by the terms and provision of this agreement. If you do not agree to abide by the above, please do not use this service.
             </p>
           </section>
 
           <section className="mb-8" data-testid="terms-platform-usage">
-            <h2 className="text-2xl font-semibold mb-4">2. Platform Usage</h2>
+            <h2 className="text-2xl font-semibold mb-4 text-foreground">2. Platform Usage</h2>
             <p className="text-muted-foreground mb-4">
               Our platform provides online courses related to Vedic studies, Sanskrit, ancient Indian philosophy, mathematics, and wellness. You may use our services for personal, non-commercial educational purposes only.
             </p>
@@ -40,7 +40,7 @@ export default function Terms() {
           </section>
 
           <section className="mb-8" data-testid="terms-course-access">
-            <h2 className="text-2xl font-semibold mb-4">3. Course Access and Content</h2>
+            <h2 className="text-2xl font-semibold mb-4 text-foreground">3. Course Access and Content</h2>
             <p className="text-muted-foreground mb-4">
               Upon successful payment, you will receive access to the purchased course materials. Course access is granted for the duration specified in the course description.
             </p>
@@ -53,7 +53,7 @@ export default function Terms() {
           </section>
 
           <section className="mb-8" data-testid="terms-payment">
-            <h2 className="text-2xl font-semibold mb-4">4. Payment and Billing</h2>
+            <h2 className="text-2xl font-semibold mb-4 text-foreground">4. Payment and Billing</h2>
             <p className="text-muted-foreground mb-4">
               All course fees must be paid in advance. We accept various payment methods as displayed during checkout.
             </p>
@@ -66,7 +66,7 @@ export default function Terms() {
           </section>
 
           <section className="mb-8" data-testid="terms-conduct">
-            <h2 className="text-2xl font-semibold mb-4">5. User Conduct</h2>
+            <h2 className="text-2xl font-semibold mb-4 text-foreground">5. User Conduct</h2>
             <p className="text-muted-foreground mb-4">
               You agree to use our platform respectfully and in accordance with all applicable laws.
             </p>
@@ -79,7 +79,7 @@ export default function Terms() {
           </section>
 
           <section className="mb-8" data-testid="terms-intellectual-property">
-            <h2 className="text-2xl font-semibold mb-4">6. Intellectual Property</h2>
+            <h2 className="text-2xl font-semibold mb-4 text-foreground">6. Intellectual Property</h2>
             <p className="text-muted-foreground mb-4">
               All course content, including videos, texts, images, and materials, are protected by copyright and other intellectual property laws.
             </p>
@@ -92,28 +92,28 @@ export default function Terms() {
           </section>
 
           <section className="mb-8" data-testid="terms-liability">
-            <h2 className="text-2xl font-semibold mb-4">7. Limitation of Liability</h2>
+            <h2 className="text-2xl font-semibold mb-4 text-foreground">7. Limitation of Liability</h2>
             <p className="text-muted-foreground mb-4">
               We provide our services "as is" without warranty of any kind. We shall not be liable for any indirect, incidental, special, or consequential damages.
             </p>
           </section>
 
           <section className="mb-8" data-testid="terms-termination">
-            <h2 className="text-2xl font-semibold mb-4">8. Termination</h2>
+            <h2 className="text-2xl font-semibold mb-4 text-foreground">8. Termination</h2>
             <p className="text-muted-foreground mb-4">
               We reserve the right to terminate or suspend your account at our sole discretion, without notice, for conduct that we believe violates these Terms of Service.
             </p>
           </section>
 
           <section className="mb-8" data-testid="terms-changes">
-            <h2 className="text-2xl font-semibold mb-4">9. Changes to Terms</h2>
+            <h2 className="text-2xl font-semibold mb-4 text-foreground">9. Changes to Terms</h2>
             <p className="text-muted-foreground mb-4">
               We reserve the right to modify these terms at any time. Changes will be effective immediately upon posting. Your continued use of our services constitutes acceptance of any modifications.
             </p>
           </section>
 
           <section className="mb-8" data-testid="terms-contact">
-            <h2 className="text-2xl font-semibold mb-4">10. Contact Information</h2>
+            <h2 className="text-2xl font-semibold mb-4 text-foreground">10. Contact Information</h2>
             <p className="text-muted-foreground mb-4">
               If you have any questions about these Terms of Service, please contact us at:
             </p>

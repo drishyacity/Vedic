@@ -20,16 +20,16 @@ export default function Privacy() {
         {/* Content */}
         <div className="prose prose-lg max-w-none text-foreground">
           <section className="mb-8" data-testid="privacy-overview">
-            <h2 className="text-2xl font-semibold mb-4">1. Overview</h2>
+            <h2 className="text-2xl font-semibold mb-4 text-foreground">1. Overview</h2>
             <p className="text-muted-foreground mb-4">
               At Vedic Learning Platform, we are committed to protecting your privacy and ensuring the security of your personal information. This Privacy Policy explains how we collect, use, and safeguard your data when you use our platform.
             </p>
           </section>
 
           <section className="mb-8" data-testid="privacy-collection">
-            <h2 className="text-2xl font-semibold mb-4">2. Information We Collect</h2>
+            <h2 className="text-2xl font-semibold mb-4 text-foreground">2. Information We Collect</h2>
             
-            <h3 className="text-xl font-semibold mb-3">Personal Information</h3>
+            <h3 className="text-xl font-semibold mb-3 text-foreground">Personal Information</h3>
             <ul className="list-disc pl-6 text-muted-foreground space-y-2 mb-4">
               <li>Name, email address, and phone number</li>
               <li>Profile information and learning preferences</li>
@@ -37,7 +37,7 @@ export default function Privacy() {
               <li>Course enrollment and progress data</li>
             </ul>
 
-            <h3 className="text-xl font-semibold mb-3">Automatically Collected Information</h3>
+            <h3 className="text-xl font-semibold mb-3 text-foreground">Automatically Collected Information</h3>
             <ul className="list-disc pl-6 text-muted-foreground space-y-2">
               <li>Device information and IP address</li>
               <li>Browser type and operating system</li>
@@ -47,7 +47,7 @@ export default function Privacy() {
           </section>
 
           <section className="mb-8" data-testid="privacy-usage">
-            <h2 className="text-2xl font-semibold mb-4">3. How We Use Your Information</h2>
+            <h2 className="text-2xl font-semibold mb-4 text-foreground">3. How We Use Your Information</h2>
             <p className="text-muted-foreground mb-4">
               We use your information to provide and improve our educational services:
             </p>
@@ -62,7 +62,7 @@ export default function Privacy() {
           </section>
 
           <section className="mb-8" data-testid="privacy-sharing">
-            <h2 className="text-2xl font-semibold mb-4">4. Information Sharing</h2>
+            <h2 className="text-2xl font-semibold mb-4 text-foreground">4. Information Sharing</h2>
             <p className="text-muted-foreground mb-4">
               We do not sell your personal information. We may share information in limited circumstances:
             </p>
@@ -76,7 +76,7 @@ export default function Privacy() {
           </section>
 
           <section className="mb-8" data-testid="privacy-security">
-            <h2 className="text-2xl font-semibold mb-4">5. Data Security</h2>
+            <h2 className="text-2xl font-semibold mb-4 text-foreground">5. Data Security</h2>
             <p className="text-muted-foreground mb-4">
               We implement industry-standard security measures to protect your information:
             </p>
@@ -89,7 +89,7 @@ export default function Privacy() {
           </section>
 
           <section className="mb-8" data-testid="privacy-cookies">
-            <h2 className="text-2xl font-semibold mb-4">6. Cookies and Tracking</h2>
+            <h2 className="text-2xl font-semibold mb-4 text-foreground">6. Cookies and Tracking</h2>
             <p className="text-muted-foreground mb-4">
               We use cookies and similar technologies to enhance your experience:
             </p>
@@ -102,7 +102,7 @@ export default function Privacy() {
           </section>
 
           <section className="mb-8" data-testid="privacy-rights">
-            <h2 className="text-2xl font-semibold mb-4">7. Your Rights</h2>
+            <h2 className="text-2xl font-semibold mb-4 text-foreground">7. Your Rights</h2>
             <p className="text-muted-foreground mb-4">
               You have the following rights regarding your personal information:
             </p>
@@ -117,35 +117,35 @@ export default function Privacy() {
           </section>
 
           <section className="mb-8" data-testid="privacy-retention">
-            <h2 className="text-2xl font-semibold mb-4">8. Data Retention</h2>
+            <h2 className="text-2xl font-semibold mb-4 text-foreground">8. Data Retention</h2>
             <p className="text-muted-foreground mb-4">
               We retain your information for as long as necessary to provide our services and comply with legal obligations. Course progress and certificates are maintained for your lifetime access.
             </p>
           </section>
 
           <section className="mb-8" data-testid="privacy-children">
-            <h2 className="text-2xl font-semibold mb-4">9. Children's Privacy</h2>
+            <h2 className="text-2xl font-semibold mb-4 text-foreground">9. Children's Privacy</h2>
             <p className="text-muted-foreground mb-4">
               Our platform is designed for users aged 13 and above. We do not knowingly collect personal information from children under 13. If you believe we have collected such information, please contact us immediately.
             </p>
           </section>
 
           <section className="mb-8" data-testid="privacy-international">
-            <h2 className="text-2xl font-semibold mb-4">10. International Transfers</h2>
+            <h2 className="text-2xl font-semibold mb-4 text-foreground">10. International Transfers</h2>
             <p className="text-muted-foreground mb-4">
               Your information may be transferred to and processed in countries other than your country of residence. We ensure appropriate safeguards are in place to protect your data during international transfers.
             </p>
           </section>
 
           <section className="mb-8" data-testid="privacy-changes">
-            <h2 className="text-2xl font-semibold mb-4">11. Policy Updates</h2>
+            <h2 className="text-2xl font-semibold mb-4 text-foreground">11. Policy Updates</h2>
             <p className="text-muted-foreground mb-4">
               We may update this Privacy Policy periodically. We will notify you of significant changes through email or platform notifications. Your continued use of our services constitutes acceptance of the updated policy.
             </p>
           </section>
 
           <section className="mb-8" data-testid="privacy-contact">
-            <h2 className="text-2xl font-semibold mb-4">12. Contact Us</h2>
+            <h2 className="text-2xl font-semibold mb-4 text-foreground">12. Contact Us</h2>
             <p className="text-muted-foreground mb-4">
               If you have questions about this Privacy Policy or wish to exercise your rights, please contact us:
             </p>

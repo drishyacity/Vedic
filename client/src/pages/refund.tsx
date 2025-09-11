@@ -20,19 +20,19 @@ export default function Refund() {
         {/* Content */}
         <div className="prose prose-lg max-w-none text-foreground">
           <section className="mb-8" data-testid="refund-overview">
-            <h2 className="text-2xl font-semibold mb-4">1. Overview</h2>
+            <h2 className="text-2xl font-semibold mb-4 text-foreground">1. Overview</h2>
             <p className="text-muted-foreground mb-4">
               We want you to be completely satisfied with your learning experience on our Vedic Learning Platform. This Refund Policy outlines the conditions under which refunds may be requested and processed.
             </p>
           </section>
 
           <section className="mb-8" data-testid="refund-guarantee">
-            <h2 className="text-2xl font-semibold mb-4">2. 7-Day Money-Back Guarantee</h2>
+            <h2 className="text-2xl font-semibold mb-4 text-foreground">2. 7-Day Money-Back Guarantee</h2>
             <p className="text-muted-foreground mb-4">
               We offer a 7-day money-back guarantee for all our courses. If you are not satisfied with your purchase, you may request a full refund within 7 days of enrollment.
             </p>
             
-            <h3 className="text-xl font-semibold mb-3">Eligibility Criteria:</h3>
+            <h3 className="text-xl font-semibold mb-3 text-foreground">Eligibility Criteria:</h3>
             <ul className="list-disc pl-6 text-muted-foreground space-y-2">
               <li>Refund request must be made within 7 days of course enrollment</li>
               <li>You have completed less than 20% of the course content</li>
@@ -42,7 +42,7 @@ export default function Refund() {
           </section>
 
           <section className="mb-8" data-testid="refund-process">
-            <h2 className="text-2xl font-semibold mb-4">3. Refund Request Process</h2>
+            <h2 className="text-2xl font-semibold mb-4 text-foreground">3. Refund Request Process</h2>
             <p className="text-muted-foreground mb-4">
               To request a refund, please follow these steps:
             </p>
@@ -56,7 +56,7 @@ export default function Refund() {
           </section>
 
           <section className="mb-8" data-testid="refund-exclusions">
-            <h2 className="text-2xl font-semibold mb-4">4. Refund Exclusions</h2>
+            <h2 className="text-2xl font-semibold mb-4 text-foreground">4. Refund Exclusions</h2>
             <p className="text-muted-foreground mb-4">
               The following circumstances are not eligible for refunds:
             </p>
@@ -72,7 +72,7 @@ export default function Refund() {
           </section>
 
           <section className="mb-8" data-testid="refund-batch-changes">
-            <h2 className="text-2xl font-semibold mb-4">5. Batch Changes and Transfers</h2>
+            <h2 className="text-2xl font-semibold mb-4 text-foreground">5. Batch Changes and Transfers</h2>
             <p className="text-muted-foreground mb-4">
               If you need to change your batch enrollment:
             </p>
@@ -85,7 +85,7 @@ export default function Refund() {
           </section>
 
           <section className="mb-8" data-testid="refund-partial">
-            <h2 className="text-2xl font-semibold mb-4">6. Partial Refunds</h2>
+            <h2 className="text-2xl font-semibold mb-4 text-foreground">6. Partial Refunds</h2>
             <p className="text-muted-foreground mb-4">
               In exceptional circumstances, we may offer partial refunds:
             </p>
@@ -98,7 +98,7 @@ export default function Refund() {
           </section>
 
           <section className="mb-8" data-testid="refund-processing">
-            <h2 className="text-2xl font-semibold mb-4">7. Processing Time and Method</h2>
+            <h2 className="text-2xl font-semibold mb-4 text-foreground">7. Processing Time and Method</h2>
             <p className="text-muted-foreground mb-4">
               Approved refunds will be processed as follows:
             </p>
@@ -111,7 +111,7 @@ export default function Refund() {
           </section>
 
           <section className="mb-8" data-testid="refund-disputes">
-            <h2 className="text-2xl font-semibold mb-4">8. Dispute Resolution</h2>
+            <h2 className="text-2xl font-semibold mb-4 text-foreground">8. Dispute Resolution</h2>
             <p className="text-muted-foreground mb-4">
               If you disagree with our refund decision:
             </p>
@@ -124,7 +124,7 @@ export default function Refund() {
           </section>
 
           <section className="mb-8" data-testid="refund-alternative">
-            <h2 className="text-2xl font-semibold mb-4">9. Alternative Solutions</h2>
+            <h2 className="text-2xl font-semibold mb-4 text-foreground">9. Alternative Solutions</h2>
             <p className="text-muted-foreground mb-4">
               Before requesting a refund, consider these alternatives:
             </p>
@@ -137,7 +137,7 @@ export default function Refund() {
           </section>
 
           <section className="mb-8" data-testid="refund-contact">
-            <h2 className="text-2xl font-semibold mb-4">10. Contact Information</h2>
+            <h2 className="text-2xl font-semibold mb-4 text-foreground">10. Contact Information</h2>
             <p className="text-muted-foreground mb-4">
               For refund requests or questions about this policy, contact us:
             </p>
@@ -150,7 +150,7 @@ export default function Refund() {
           </section>
 
           <section className="mb-8" data-testid="refund-changes">
-            <h2 className="text-2xl font-semibold mb-4">11. Policy Updates</h2>
+            <h2 className="text-2xl font-semibold mb-4 text-foreground">11. Policy Updates</h2>
             <p className="text-muted-foreground mb-4">
               We reserve the right to modify this Refund Policy at any time. Changes will be effective immediately upon posting on our platform. Continued use of our services constitutes acceptance of the updated policy.
             </p>
