@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { useLocation } from "wouter";
 import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";
 import CourseCard from "@/components/course-card";
@@ -12,6 +13,7 @@ interface CourseWithCategory extends Course {
 }
 
 export default function Landing() {
+  const [, setLocation] = useLocation();
   const { data: courses = [] } = useQuery<CourseWithCategory[]>({
     queryKey: ["/api/courses"],
   });
@@ -41,7 +43,7 @@ export default function Landing() {
               <Button
                 size="lg"
                 className="bg-accent text-accent-foreground hover:bg-accent/90 w-full sm:w-auto"
-                onClick={() => window.location.href = '/courses'}
+                onClick={() => setLocation('/courses')}
                 data-testid="button-explore-courses"
               >
                 Explore Courses
@@ -113,7 +115,7 @@ export default function Landing() {
               <CourseCard
                 key={course.id}
                 course={course}
-                onEnroll={() => window.location.href = `/course/${course.slug}`}
+                onEnroll={() => setLocation(`/enrollment-success`)}
               />
             ))}
           </div>
@@ -122,7 +124,7 @@ export default function Landing() {
             <Button
               size="lg"
               className="bg-secondary text-secondary-foreground hover:bg-secondary/90"
-              onClick={() => window.location.href = '/courses'}
+              onClick={() => setLocation('/courses')}
               data-testid="button-view-all-courses"
             >
               View All Courses

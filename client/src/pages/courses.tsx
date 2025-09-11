@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useLocation } from "wouter";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -16,6 +17,7 @@ interface CourseWithCategory extends Course {
 }
 
 export default function Courses() {
+  const [, setLocation] = useLocation();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [priceRange, setPriceRange] = useState<string>("");
@@ -53,10 +55,8 @@ export default function Courses() {
   });
 
   const handleEnroll = (courseId: number) => {
-    const course = courses.find(c => c.id === courseId);
-    if (course) {
-      window.location.href = `/course/${course.slug}`;
-    }
+    // Redirect to enrollment success page
+    setLocation(`/enrollment-success`);
   };
 
   return (

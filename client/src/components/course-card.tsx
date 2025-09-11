@@ -2,6 +2,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Clock } from "lucide-react";
+import { useLocation } from "wouter";
 import type { Course, Category } from "@shared/schema";
 
 interface CourseCardProps {
@@ -10,6 +11,7 @@ interface CourseCardProps {
 }
 
 export default function CourseCard({ course, onEnroll }: CourseCardProps) {
+  const [, setLocation] = useLocation();
   const getCategoryColor = (categoryName?: string) => {
     switch (categoryName?.toLowerCase()) {
       case 'sanskrit':
@@ -82,10 +84,10 @@ export default function CourseCard({ course, onEnroll }: CourseCardProps) {
             </span>
           </div>
           <Button
-            onClick={() => onEnroll?.(course.id)}
-            data-testid={`button-enroll-${course.id}`}
+            onClick={() => setLocation(`/course/${course.slug}`)}
+            data-testid={`button-know-more-${course.id}`}
           >
-            Enroll Now
+            Know More
           </Button>
         </div>
       </CardContent>

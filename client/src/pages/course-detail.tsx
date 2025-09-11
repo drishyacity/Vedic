@@ -1,4 +1,4 @@
-import { useParams } from "wouter";
+import { useParams, useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -12,6 +12,7 @@ import type { Course, Batch } from "@shared/schema";
 
 export default function CourseDetail() {
   const { slug } = useParams();
+  const [, setLocation] = useLocation();
   const { isAuthenticated } = useAuth();
 
   const { data: course, isLoading: courseLoading } = useQuery<Course>({
@@ -31,7 +32,7 @@ export default function CourseDetail() {
       return;
     }
     // For now, redirect to dashboard - payment integration would go here
-    window.location.href = "/dashboard";
+    setLocation("/dashboard");
   };
 
   const getDefaultThumbnail = () => {
@@ -65,7 +66,7 @@ export default function CourseDetail() {
           <div className="text-center py-16" data-testid="course-not-found">
             <h1 className="text-2xl font-bold text-foreground mb-4">Course Not Found</h1>
             <p className="text-muted-foreground mb-8">The course you're looking for doesn't exist.</p>
-            <Button onClick={() => window.location.href = '/courses'} data-testid="button-back-to-courses">
+            <Button onClick={() => setLocation('/courses')} data-testid="button-back-to-courses">
               Back to Courses
             </Button>
           </div>

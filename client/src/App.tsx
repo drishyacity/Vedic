@@ -28,6 +28,7 @@ import Contact from "@/pages/contact";
 import Terms from "@/pages/terms";
 import Privacy from "@/pages/privacy";
 import Refund from "@/pages/refund";
+import EnrollmentSuccess from "@/pages/enrollment-success";
 
 // Redirect component for /admin-login
 function AdminLoginRedirect() {
@@ -67,6 +68,7 @@ function Router() {
           <Route path="/terms" component={Terms} />
           <Route path="/privacy" component={Privacy} />
           <Route path="/refund" component={Refund} />
+          <Route path="/enrollment-success" component={EnrollmentSuccess} />
         </>
       ) : (
         <>
@@ -81,6 +83,7 @@ function Router() {
           <Route path="/terms" component={Terms} />
           <Route path="/privacy" component={Privacy} />
           <Route path="/refund" component={Refund} />
+          <Route path="/enrollment-success" component={EnrollmentSuccess} />
           
           {/* Admin routes - accessible to everyone, handle auth internally */}
           <Route path="/admin" component={Admin} />
