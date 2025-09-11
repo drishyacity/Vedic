@@ -47,7 +47,7 @@ export default function AdminPayments() {
   const { user, isAuthenticated, isLoading } = useAuth();
   const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState<string>("");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
 
   useEffect(() => {
     if (!isLoading && (!isAuthenticated || user?.role !== 'admin')) {
@@ -152,7 +152,7 @@ export default function AdminPayments() {
       order.razorpayOrderId?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       order.razorpayPaymentId?.toLowerCase().includes(searchTerm.toLowerCase());
     
-    const matchesStatus = !statusFilter || order.status === statusFilter;
+    const matchesStatus = !statusFilter || statusFilter === "all" || order.status === statusFilter;
     
     return matchesSearch && matchesStatus;
   });
@@ -288,7 +288,7 @@ export default function AdminPayments() {
                       <SelectValue placeholder="Filter by status" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="" data-testid="option-all-statuses">All Statuses</SelectItem>
+                      <SelectItem value="all" data-testid="option-all-statuses">All Statuses</SelectItem>
                       <SelectItem value="completed" data-testid="option-completed">Completed</SelectItem>
                       <SelectItem value="pending" data-testid="option-pending">Pending</SelectItem>
                       <SelectItem value="failed" data-testid="option-failed">Failed</SelectItem>
@@ -361,8 +361,8 @@ export default function AdminPayments() {
                           </TableCell>
                           <TableCell>
                             <div className="flex items-center space-x-2" data-testid={`order-status-${order.id}`}>
-                              {getStatusIcon(order.status)}
-                              {getStatusBadge(order.status)}
+                              {getStatusIcon(order.status || 'unknown')}
+                              {getStatusBadge(order.status || 'unknown')}
                             </div>
                           </TableCell>
                           <TableCell>
