@@ -25,16 +25,26 @@ const getOidcConfig = memoize(
 
 export function getSession() {
   const sessionTtl = 7 * 24 * 60 * 60 * 1000; // 1 week
-  const pgStore = connectPg(session);
-  const sessionStore = new pgStore({
-    conString: process.env.DATABASE_URL,
-    createTableIfMissing: false,
-    ttl: sessionTtl,
-    tableName: "sessions",
-  });
   
   // Generate a secure session secret if not provided
   const sessionSecret = process.env.SESSION_SECRET || randomBytes(64).toString('hex');
+  
+  let sessionStore;
+  
+  // Use PostgreSQL store if DATABASE_URL is available, otherwise use memory store
+  if (process.env.DATABASE_URL) {
+    const pgStore = connectPg(session);
+    sessionStore = new pgStore({
+      conString: process.env.DATABASE_URL,
+      createTableIfMissing: true, // Allow table creation
+      ttl: sessionTtl,
+      tableName: "sessions",
+    });
+  } else {
+    // Fallback to memory store for development
+    console.log('Using memory store for sessions (DATABASE_URL not available)');
+    sessionStore = new session.MemoryStore();
+  }
   
   return session({
     secret: sessionSecret,
@@ -44,6 +54,7 @@ export function getSession() {
     cookie: {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
       maxAge: sessionTtl,
     },
   });
