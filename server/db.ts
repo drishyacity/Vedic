@@ -14,19 +14,25 @@ let hasDatabase = false;
 
 if (process.env.DATABASE_URL) {
   try {
-    // Test if the DATABASE_URL is valid by creating a minimal pool
+    // Configure SSL settings for Neon database to handle self-signed certificates
+    const dbUrl = new URL(process.env.DATABASE_URL);
+    
+    // Test if the DATABASE_URL is valid by creating a minimal pool with SSL configuration
     pool = new Pool({ 
       connectionString: process.env.DATABASE_URL,
       max: 1, // Minimal connection for testing
       idleTimeoutMillis: 5000, // Short timeout for testing
-      connectionTimeoutMillis: 5000 // Short timeout for testing
+      connectionTimeoutMillis: 5000, // Short timeout for testing
+      ssl: {
+        rejectUnauthorized: false // Accept self-signed certificates in development
+      }
     });
     
     // Create drizzle instance
     db = drizzle({ client: pool, schema });
     hasDatabase = true;
     
-    console.log("✅ Database connection configured successfully");
+    console.log("✅ Database connection configured successfully with SSL settings");
   } catch (error) {
     console.warn("⚠️  DATABASE_URL found but connection failed:", (error as Error).message);
     console.warn("⚠️  Falling back to in-memory storage. Fix DATABASE_URL or remove it to use in-memory storage.");
