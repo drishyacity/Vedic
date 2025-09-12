@@ -6,6 +6,8 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import Navbar from "@/components/navbar";
@@ -28,7 +30,15 @@ import {
   Download,
   ExternalLink,
   ChevronRight,
-  Home
+  Home,
+  PlayCircle,
+  FileVideo,
+  NotebookPen,
+  CheckCircle2,
+  CircleDot,
+  Zap,
+  BookmarkCheck,
+  AlertCircle
 } from "lucide-react";
 import type { Enrollment, Batch, Course, Lecture, Announcement, Chapter, ChapterItem } from "@shared/schema";
 
@@ -48,12 +58,16 @@ interface LibraryItem {
 
 type SidebarSection = 'my-classes' | 'explore' | 'announcements' | 'library' | 'help' | 'profile';
 
+interface LectureWithBatch extends Lecture {
+  batch?: Batch & { course?: Course };
+}
+
 export default function Dashboard() {
   const { user, isAuthenticated, isLoading } = useAuth();
   const { toast } = useToast();
   const [activeSection, setActiveSection] = useState<SidebarSection>("my-classes");
-  const [selectedCourse, setSelectedCourse] = useState<string | null>(null);
-  const [selectedChapter, setSelectedChapter] = useState<string | null>(null);
+  const [selectedCourse, setSelectedCourse] = useState<number | null>(null);
+  const [selectedChapter, setSelectedChapter] = useState<number | null>(null);
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
@@ -83,6 +97,69 @@ export default function Dashboard() {
     enabled: isAuthenticated,
   });
 
+  // Today's and Live Lectures
+  const { data: todaysLectures = [], isLoading: todaysLecturesLoading } = useQuery<LectureWithBatch[]>({
+    queryKey: ["/api/lectures/today"],
+    enabled: isAuthenticated,
+  });
+
+  const { data: liveLectures = [], isLoading: liveLecturesLoading } = useQuery<LectureWithBatch[]>({
+    queryKey: ["/api/lectures/live"],
+    enabled: isAuthenticated,
+    refetchInterval: 30000, // Refetch every 30 seconds for live lectures
+  });
+
+  // Chapters for selected course with error handling
+  const { data: chapters = [], isLoading: chaptersLoading, error: chaptersError } = useQuery<Chapter[]>({
+    queryKey: ["/api/courses", selectedCourse, "chapters"],
+    enabled: isAuthenticated && !!selectedCourse,
+    retry: (failureCount, error: any) => {
+      if (error?.status === 404) return false; // Don't retry on 404
+      return failureCount < 2; // Retry up to 2 times for other errors
+    },
+  });
+
+  // Chapter items with improved caching and error handling (FIXES STALE DATA BUG)
+  const { data: chapterItems = [], isLoading: chapterItemsLoading, error: chapterItemsError } = useQuery<ChapterItem[]>({
+    queryKey: ["chapter-items", selectedChapter, selectedCourse], // Better query key to prevent stale data
+    enabled: isAuthenticated && !!selectedChapter && !!selectedCourse,
+    retry: (failureCount, error: any) => {
+      if (error?.status === 404) return false;
+      return failureCount < 2;
+    },
+  });
+
+  // Reset selected chapter when course changes to prevent stale data
+  useEffect(() => {
+    if (selectedCourse) {
+      setSelectedChapter(null);
+    }
+  }, [selectedCourse]);
+
+  // Handle chapters error
+  useEffect(() => {
+    if (chaptersError) {
+      console.error("Error fetching chapters:", chaptersError);
+      toast({
+        title: "Error loading chapters",
+        description: "Failed to load course chapters. Please try again.",
+        variant: "destructive",
+      });
+    }
+  }, [chaptersError, toast]);
+
+  // Handle chapter items error
+  useEffect(() => {
+    if (chapterItemsError) {
+      console.error("Error fetching chapter items:", chapterItemsError);
+      toast({
+        title: "Error loading chapter content",
+        description: "Failed to load chapter items. Please try again.",
+        variant: "destructive",
+      });
+    }
+  }, [chapterItemsError, toast]);
+
   if (isLoading || !isAuthenticated) {
     return (
       <div className="min-h-screen bg-background">
@@ -100,9 +177,27 @@ export default function Dashboard() {
 
   const activeEnrollments = enrollments.filter((e: Enrollment) => e.status === 'active');
   const completedEnrollments = enrollments.filter((e: Enrollment) => e.status === 'completed');
-  const totalProgress = activeEnrollments.length > 0 
-    ? Math.round(activeEnrollments.reduce((sum: number, e: Enrollment) => sum + (e.progress || 0), 0) / activeEnrollments.length)
+  
+  // Filter enrollments to only include those with valid course data (CRITICAL FIX)
+  const validActiveEnrollments = activeEnrollments.filter(
+    (enrollment: EnrollmentWithBatch) => 
+      enrollment.batch?.course?.id && 
+      enrollment.batch?.course?.title
+  );
+  
+  const totalProgress = validActiveEnrollments.length > 0 
+    ? Math.round(validActiveEnrollments.reduce((sum: number, e: Enrollment) => sum + (e.progress || 0), 0) / validActiveEnrollments.length)
     : 0;
+
+  // Auto-select course if user has exactly one valid enrollment (UX ENHANCEMENT)
+  useEffect(() => {
+    if (validActiveEnrollments.length === 1 && !selectedCourse) {
+      const courseId = validActiveEnrollments[0].batch?.course?.id;
+      if (courseId) {
+        setSelectedCourse(courseId);
+      }
+    }
+  }, [validActiveEnrollments, selectedCourse]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -134,7 +229,7 @@ export default function Dashboard() {
               <div className="flex items-center space-x-2">
                 <BookOpen className="h-8 w-8 text-primary" />
                 <div>
-                  <p className="text-2xl font-bold text-foreground">{activeEnrollments.length}</p>
+                  <p className="text-2xl font-bold text-foreground">{validActiveEnrollments.length}</p>
                   <p className="text-sm text-muted-foreground">Active Courses</p>
                 </div>
               </div>
@@ -291,137 +386,434 @@ export default function Dashboard() {
           {/* Main Content Area */}
           <div className="lg:col-span-3">
             {activeSection === 'my-classes' && (
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div className="lg:col-span-2">
-                  <h3 className="text-xl font-semibold text-foreground mb-4">Your Active Courses</h3>
-                  {enrollmentsLoading ? (
-                    <div className="space-y-4">
-                      {[1, 2].map((i) => (
-                        <Card key={i} className="animate-pulse">
-                          <CardContent className="p-6">
-                            <div className="h-4 bg-muted rounded mb-2" />
-                            <div className="h-8 bg-muted rounded mb-4" />
-                            <div className="h-2 bg-muted rounded" />
-                          </CardContent>
-                        </Card>
-                      ))}
-                    </div>
-                  ) : activeEnrollments.length === 0 ? (
-                    <Card data-testid="no-active-courses">
-                      <CardContent className="p-8 text-center">
-                        <BookOpen className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                        <h4 className="text-lg font-semibold text-foreground mb-2">No Active Courses</h4>
-                        <p className="text-muted-foreground mb-4">
-                          You haven't enrolled in any courses yet. Explore our course catalog to get started!
-                        </p>
-                        <Button onClick={() => setActiveSection("explore")} data-testid="button-explore-courses">
-                          Explore Courses
-                        </Button>
-                      </CardContent>
-                    </Card>
-                  ) : (
-                    <div className="space-y-4">
-                      {activeEnrollments.map((enrollment: EnrollmentWithBatch) => (
-                        <Card key={enrollment.id} className="hover-lift" data-testid={`enrollment-${enrollment.id}`}>
-                          <CardContent className="p-6">
-                            <div className="flex items-center justify-between mb-3">
-                              <h4 className="font-semibold text-foreground" data-testid={`enrollment-title-${enrollment.id}`}>
-                                {enrollment.batch?.title || 'Course Batch'}
-                              </h4>
-                              <Badge 
-                                className="bg-primary/10 text-primary"
-                                data-testid={`enrollment-status-${enrollment.id}`}
+              <div className="space-y-6">
+                {/* Course Selection Header */}
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                  <div>
+                    <h3 className="text-xl font-semibold text-foreground" data-testid="my-classes-title">My Classes</h3>
+                    <p className="text-muted-foreground text-sm">Manage your learning journey</p>
+                  </div>
+                  {validActiveEnrollments.length > 0 && (
+                    <div className="w-full sm:w-64">
+                      <Select 
+                        value={selectedCourse?.toString() || ""} 
+                        onValueChange={(value) => {
+                          const courseId = value ? parseInt(value) : null;
+                          setSelectedCourse(courseId);
+                          setSelectedChapter(null);
+                        }}
+                      >
+                        <SelectTrigger data-testid="course-selector">
+                          <SelectValue placeholder="Select a course" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {validActiveEnrollments.map((enrollment) => {
+                            const courseId = enrollment.batch!.course!.id!; // Safe to use ! since we filtered
+                            const courseTitle = enrollment.batch!.course!.title!;
+                            return (
+                              <SelectItem 
+                                key={enrollment.id} 
+                                value={courseId.toString()}
+                                data-testid={`course-option-${courseId}`}
                               >
-                                In Progress
-                              </Badge>
-                            </div>
-                            <div className="flex items-center space-x-4 text-sm text-muted-foreground mb-3">
-                              <span className="flex items-center space-x-1">
-                                <Users className="h-4 w-4" />
-                                <span>Dr. Raghavan</span>
-                              </span>
-                              <span className="flex items-center space-x-1">
-                                <Calendar className="h-4 w-4" />
-                                <span>{enrollment.batch?.schedule || 'Mon, Wed, Fri'}</span>
-                              </span>
-                              <span className="flex items-center space-x-1">
-                                <Clock className="h-4 w-4" />
-                                <span>{enrollment.batch?.time || '7:00 PM'}</span>
-                              </span>
-                            </div>
-                            <Progress value={enrollment.progress || 0} className="mb-3" />
-                            <div className="flex items-center justify-between">
-                              <span className="text-sm text-muted-foreground">
-                                Progress: {enrollment.progress || 0}%
-                              </span>
-                              <Button 
-                                onClick={() => window.location.href = `/batch/${enrollment.batchId}`}
-                                data-testid={`button-enter-batch-${enrollment.id}`}
-                              >
-                                Enter Batch Room
-                              </Button>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      ))}
+                                {courseTitle}
+                              </SelectItem>
+                            );
+                          })}
+                        </SelectContent>
+                      </Select>
                     </div>
                   )}
                 </div>
 
-                {/* Right Sidebar for My Classes */}
-                <div className="space-y-6">
-                  {/* Upcoming Classes */}
-                  <Card data-testid="upcoming-classes">
-                    <CardHeader>
-                      <CardTitle className="text-lg">Upcoming Classes</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-3">
-                        <div className="flex items-center space-x-3">
-                          <div className="w-12 h-12 bg-primary rounded-lg flex items-center justify-center">
-                            <Video className="h-6 w-6 text-primary-foreground" />
-                          </div>
-                          <div className="flex-1">
-                            <p className="font-medium text-foreground text-sm">Sanskrit Grammar</p>
-                            <p className="text-xs text-muted-foreground">Today, 7:00 PM</p>
-                          </div>
-                        </div>
-                        <div className="flex items-center space-x-3">
-                          <div className="w-12 h-12 bg-secondary rounded-lg flex items-center justify-center">
-                            <BookOpen className="h-6 w-6 text-secondary-foreground" />
-                          </div>
-                          <div className="flex-1">
-                            <p className="font-medium text-foreground text-sm">Gita Chapter 4</p>
-                            <p className="text-xs text-muted-foreground">Tomorrow, 6:30 PM</p>
-                          </div>
-                        </div>
-                      </div>
+                {validActiveEnrollments.length === 0 ? (
+                  <Card data-testid="no-active-courses">
+                    <CardContent className="p-8 text-center">
+                      <BookOpen className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                      <h4 className="text-lg font-semibold text-foreground mb-2">No Active Courses</h4>
+                      <p className="text-muted-foreground mb-4">
+                        You haven't enrolled in any courses yet. Explore our course catalog to get started!
+                      </p>
+                      <Button onClick={() => setActiveSection("explore")} data-testid="button-explore-courses">
+                        Explore Courses
+                      </Button>
                     </CardContent>
                   </Card>
+                ) : (
+                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    {/* Main Content */}
+                    <div className="lg:col-span-2 space-y-6">
+                      {/* Today's Classes Section */}
+                      <Card data-testid="todays-classes">
+                        <CardHeader>
+                          <CardTitle className="flex items-center space-x-2">
+                            <Calendar className="h-5 w-5" />
+                            <span>Today's Classes</span>
+                            {(todaysLecturesLoading || liveLecturesLoading) && (
+                              <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                            )}
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          {/* Live Classes */}
+                          {liveLectures.length > 0 && (
+                            <div className="mb-4">
+                              <h5 className="text-sm font-medium text-foreground mb-2 flex items-center space-x-2">
+                                <Zap className="h-4 w-4 text-red-500" />
+                                <span>Live Now</span>
+                              </h5>
+                              <div className="space-y-2">
+                                {liveLectures.map((lecture) => (
+                                  <div 
+                                    key={lecture.id} 
+                                    className="flex items-center justify-between p-3 bg-red-50 dark:bg-red-950/20 rounded-lg border border-red-200 dark:border-red-800"
+                                    data-testid={`live-lecture-${lecture.id}`}
+                                  >
+                                    <div className="flex items-center space-x-3">
+                                      <div className="relative">
+                                        <PlayCircle className="h-8 w-8 text-red-500" />
+                                        <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full animate-pulse" />
+                                      </div>
+                                      <div>
+                                        <p className="font-medium text-foreground text-sm">{lecture.title}</p>
+                                        <p className="text-xs text-muted-foreground">
+                                          {lecture.batch?.course?.title || 'Course'}
+                                        </p>
+                                      </div>
+                                    </div>
+                                    <Button 
+                                      size="sm" 
+                                      className="bg-red-500 hover:bg-red-600"
+                                      onClick={() => lecture.liveLink && window.open(lecture.liveLink, '_blank')}
+                                      data-testid={`join-live-${lecture.id}`}
+                                    >
+                                      Join Now
+                                    </Button>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
 
-                  {/* Recent Assignments */}
-                  <Card data-testid="recent-assignments">
-                    <CardHeader>
-                      <CardTitle className="text-lg">Recent Assignments</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-2">
-                        <div className="flex items-center justify-between">
-                          <span className="text-sm text-foreground">Sanskrit Translation</span>
-                          <Badge className="bg-accent/20 text-accent-foreground text-xs">Graded</Badge>
-                        </div>
-                        <div className="flex items-center justify-between">
-                          <span className="text-sm text-foreground">Gita Verse Analysis</span>
-                          <Badge className="bg-primary/10 text-primary text-xs">Submitted</Badge>
-                        </div>
-                        <div className="flex items-center justify-between">
-                          <span className="text-sm text-foreground">Pronunciation Practice</span>
-                          <Badge className="bg-destructive/10 text-destructive text-xs">Due Soon</Badge>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
+                          {/* Scheduled Classes */}
+                          {todaysLecturesLoading ? (
+                            <div className="space-y-3">
+                              {[1, 2, 3].map((i) => (
+                                <div key={i} className="flex items-center space-x-3">
+                                  <Skeleton className="h-8 w-8 rounded-lg" />
+                                  <div className="flex-1 space-y-1">
+                                    <Skeleton className="h-4 w-32" />
+                                    <Skeleton className="h-3 w-24" />
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          ) : todaysLectures.length === 0 && liveLectures.length === 0 ? (
+                            <div className="text-center py-6">
+                              <Calendar className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
+                              <p className="text-sm text-muted-foreground">No classes scheduled for today</p>
+                            </div>
+                          ) : (
+                            <div className="space-y-3">
+                              {todaysLectures.filter(lecture => !liveLectures.find(live => live.id === lecture.id)).map((lecture) => (
+                                <div 
+                                  key={lecture.id} 
+                                  className="flex items-center justify-between p-3 border rounded-lg"
+                                  data-testid={`scheduled-lecture-${lecture.id}`}
+                                >
+                                  <div className="flex items-center space-x-3">
+                                    <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center">
+                                      <Video className="h-4 w-4 text-primary" />
+                                    </div>
+                                    <div>
+                                      <p className="font-medium text-foreground text-sm">{lecture.title}</p>
+                                      <p className="text-xs text-muted-foreground">
+                                        {lecture.dateTime && new Date(lecture.dateTime).toLocaleTimeString([], { 
+                                          hour: '2-digit', 
+                                          minute: '2-digit' 
+                                        })} • {lecture.batch?.course?.title || 'Course'}
+                                      </p>
+                                    </div>
+                                  </div>
+                                  {lecture.liveLink && (
+                                    <Button 
+                                      variant="outline" 
+                                      size="sm"
+                                      onClick={() => window.open(lecture.liveLink!, '_blank')}
+                                      data-testid={`join-scheduled-${lecture.id}`}
+                                    >
+                                      Join Class
+                                    </Button>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </CardContent>
+                      </Card>
+
+                      {/* Chapter Content for Selected Course */}
+                      {selectedCourse && (
+                        <Card data-testid="course-chapters">
+                          <CardHeader>
+                            <CardTitle className="flex items-center space-x-2">
+                              <BookOpen className="h-5 w-5" />
+                              <span>Course Content</span>
+                              {chaptersLoading && (
+                                <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                              )}
+                            </CardTitle>
+                          </CardHeader>
+                          <CardContent>
+                            {chaptersLoading ? (
+                              <div className="space-y-3">
+                                {[1, 2, 3].map((i) => (
+                                  <Skeleton key={i} className="h-12 w-full" />
+                                ))}
+                              </div>
+                            ) : (chapters as Chapter[]).length === 0 ? (
+                              <div className="text-center py-6">
+                                <BookOpen className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
+                                <p className="text-sm text-muted-foreground">No chapters available yet</p>
+                              </div>
+                            ) : (
+                              <Accordion type="single" collapsible className="w-full">
+                                {(chapters as Chapter[]).map((chapter: Chapter) => (
+                                  <AccordionItem key={chapter.id} value={`chapter-${chapter.id}`}>
+                                    <AccordionTrigger 
+                                      className="hover:no-underline"
+                                      onClick={() => setSelectedChapter(chapter.id)}
+                                      data-testid={`chapter-trigger-${chapter.id}`}
+                                    >
+                                      <div className="flex items-center space-x-3 text-left">
+                                        <div className="w-8 h-8 bg-secondary/10 rounded-lg flex items-center justify-center">
+                                          <span className="text-xs font-medium">{chapter.position || 1}</span>
+                                        </div>
+                                        <div>
+                                          <h4 className="font-medium">{chapter.title}</h4>
+                                          {chapter.description && (
+                                            <p className="text-xs text-muted-foreground line-clamp-1">
+                                              {chapter.description}
+                                            </p>
+                                          )}
+                                        </div>
+                                      </div>
+                                    </AccordionTrigger>
+                                    <AccordionContent>
+                                      {selectedChapter === chapter.id && (
+                                        <div className="pt-4">
+                                          {chapterItemsError ? (
+                                            <div className="text-center py-4">
+                                              <AlertCircle className="h-8 w-8 text-destructive mx-auto mb-2" />
+                                              <p className="text-sm text-destructive mb-2">Failed to load chapter content</p>
+                                              <Button 
+                                                variant="outline" 
+                                                size="sm"
+                                                onClick={() => window.location.reload()}
+                                                data-testid="button-retry-chapter-items"
+                                              >
+                                                Try Again
+                                              </Button>
+                                            </div>
+                                          ) : chapterItemsLoading ? (
+                                            <div className="space-y-2">
+                                              {[1, 2].map((i) => (
+                                                <Skeleton key={i} className="h-8 w-full" />
+                                              ))}
+                                            </div>
+                                          ) : (chapterItems as ChapterItem[]).length === 0 ? (
+                                            <p className="text-sm text-muted-foreground">No content available</p>
+                                          ) : (
+                                            <div className="space-y-2">
+                                              {(chapterItems as ChapterItem[]).map((item: ChapterItem) => (
+                                                <div 
+                                                  key={item.id} 
+                                                  className="flex items-center space-x-3 p-2 hover:bg-muted/50 rounded-md cursor-pointer"
+                                                  data-testid={`chapter-item-${item.id}`}
+                                                >
+                                                  {item.type === 'video' && <FileVideo className="h-4 w-4 text-blue-500" />}
+                                                  {item.type === 'note' && <NotebookPen className="h-4 w-4 text-green-500" />}
+                                                  {item.type === 'work' && <FileText className="h-4 w-4 text-orange-500" />}
+                                                  <div className="flex-1">
+                                                    <p className="text-sm font-medium">{item.title}</p>
+                                                    {item.description && (
+                                                      <p className="text-xs text-muted-foreground line-clamp-1">
+                                                        {item.description}
+                                                      </p>
+                                                    )}
+                                                  </div>
+                                                  {item.url && (
+                                                    <Button 
+                                                      variant="ghost" 
+                                                      size="sm"
+                                                      onClick={() => window.open(item.url!, '_blank')}
+                                                      data-testid={`open-item-${item.id}`}
+                                                    >
+                                                      <ExternalLink className="h-3 w-3" />
+                                                    </Button>
+                                                  )}
+                                                </div>
+                                              ))}
+                                            </div>
+                                          )}
+                                        </div>
+                                      )}
+                                    </AccordionContent>
+                                  </AccordionItem>
+                                ))}
+                              </Accordion>
+                            )}
+                          </CardContent>
+                        </Card>
+                      )}
+
+                      {/* Quick Access to All Enrollments */}
+                      {!selectedCourse && (
+                        <Card data-testid="all-enrollments">
+                          <CardHeader>
+                            <CardTitle>Your Active Courses</CardTitle>
+                          </CardHeader>
+                          <CardContent>
+                            <div className="space-y-4">
+                              {activeEnrollments.map((enrollment: EnrollmentWithBatch) => (
+                                <div 
+                                  key={enrollment.id} 
+                                  className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors"
+                                  data-testid={`enrollment-${enrollment.id}`}
+                                >
+                                  <div className="flex items-center space-x-4">
+                                    <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
+                                      <BookOpen className="h-6 w-6 text-primary" />
+                                    </div>
+                                    <div>
+                                      <h4 className="font-medium text-foreground">
+                                        {enrollment.batch?.course?.title || enrollment.batch?.title || 'Course'}
+                                      </h4>
+                                      <p className="text-sm text-muted-foreground">
+                                        Progress: {enrollment.progress || 0}%
+                                      </p>
+                                    </div>
+                                  </div>
+                                  <div className="flex items-center space-x-2">
+                                    <Button 
+                                      variant="outline" 
+                                      size="sm"
+                                      onClick={() => setSelectedCourse(enrollment.batch?.course?.id || null)}
+                                      data-testid={`select-course-${enrollment.id}`}
+                                    >
+                                      View Content
+                                    </Button>
+                                    <Button 
+                                      size="sm"
+                                      onClick={() => window.location.href = `/batch/${enrollment.batchId}`}
+                                      data-testid={`enter-batch-${enrollment.id}`}
+                                    >
+                                      Enter Batch
+                                    </Button>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </CardContent>
+                        </Card>
+                      )}
+                    </div>
+
+                    {/* Right Sidebar */}
+                    <div className="space-y-6">
+                      {/* Quick Stats */}
+                      <Card data-testid="quick-stats">
+                        <CardHeader>
+                          <CardTitle className="text-lg">Quick Stats</CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-3">
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm text-muted-foreground">Active Courses</span>
+                            <Badge variant="secondary">{activeEnrollments.length}</Badge>
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm text-muted-foreground">Today's Classes</span>
+                            <Badge variant="secondary">{todaysLectures.length}</Badge>
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm text-muted-foreground">Live Now</span>
+                            <Badge variant={liveLectures.length > 0 ? "destructive" : "secondary"}>
+                              {liveLectures.length}
+                            </Badge>
+                          </div>
+                        </CardContent>
+                      </Card>
+
+                      {/* Recent Activity */}
+                      <Card data-testid="recent-activity">
+                        <CardHeader>
+                          <CardTitle className="text-lg">Recent Activity</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="space-y-3">
+                            <div className="flex items-center space-x-3">
+                              <div className="w-2 h-2 bg-green-500 rounded-full" />
+                              <div>
+                                <p className="text-sm font-medium">Completed Chapter 1</p>
+                                <p className="text-xs text-muted-foreground">2 hours ago</p>
+                              </div>
+                            </div>
+                            <div className="flex items-center space-x-3">
+                              <div className="w-2 h-2 bg-blue-500 rounded-full" />
+                              <div>
+                                <p className="text-sm font-medium">Joined Sanskrit class</p>
+                                <p className="text-xs text-muted-foreground">1 day ago</p>
+                              </div>
+                            </div>
+                            <div className="flex items-center space-x-3">
+                              <div className="w-2 h-2 bg-orange-500 rounded-full" />
+                              <div>
+                                <p className="text-sm font-medium">Assignment submitted</p>
+                                <p className="text-xs text-muted-foreground">3 days ago</p>
+                              </div>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+
+                      {/* Quick Actions */}
+                      <Card data-testid="quick-actions">
+                        <CardHeader>
+                          <CardTitle className="text-lg">Quick Actions</CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-2">
+                          <Button 
+                            variant="outline" 
+                            className="w-full justify-start"
+                            onClick={() => setActiveSection('announcements')}
+                            data-testid="view-announcements"
+                          >
+                            <Bell className="h-4 w-4 mr-2" />
+                            View Announcements
+                          </Button>
+                          <Button 
+                            variant="outline" 
+                            className="w-full justify-start"
+                            onClick={() => setActiveSection('library')}
+                            data-testid="access-library"
+                          >
+                            <Library className="h-4 w-4 mr-2" />
+                            Access Library
+                          </Button>
+                          <Button 
+                            variant="outline" 
+                            className="w-full justify-start"
+                            onClick={() => setActiveSection('help')}
+                            data-testid="get-help"
+                          >
+                            <HelpCircle className="h-4 w-4 mr-2" />
+                            Get Help
+                          </Button>
+                        </CardContent>
+                      </Card>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
             
