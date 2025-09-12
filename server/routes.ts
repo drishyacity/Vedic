@@ -7,7 +7,8 @@ import bcrypt from "bcryptjs";
 import { 
   insertCourseSchema, insertBatchSchema, insertEnrollmentSchema,
   insertLectureSchema, insertResourceSchema, insertOrderSchema,
-  insertAnnouncementSchema, insertCategorySchema
+  insertAnnouncementSchema, insertCategorySchema, insertChapterSchema,
+  insertChapterItemSchema
 } from "@shared/schema";
 import { z } from "zod";
 
@@ -99,6 +100,200 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       res.json({ success: true });
     });
+  });
+
+  // Chapter routes
+  app.get('/api/courses/:courseId/chapters', isAuthenticated, async (req: any, res) => {
+    try {
+      const courseId = parseInt(req.params.courseId);
+      if (isNaN(courseId)) {
+        return res.status(400).json({ message: "Invalid course ID" });
+      }
+      
+      const chapters = await storage.getChaptersByCourse(courseId);
+      res.json(chapters);
+    } catch (error) {
+      console.error("Error fetching chapters:", error);
+      res.status(500).json({ message: "Failed to fetch chapters" });
+    }
+  });
+
+  app.get('/api/chapters/:chapterId/items', isAuthenticated, async (req: any, res) => {
+    try {
+      const chapterId = parseInt(req.params.chapterId);
+      if (isNaN(chapterId)) {
+        return res.status(400).json({ message: "Invalid chapter ID" });
+      }
+      
+      const items = await storage.getChapterItems(chapterId);
+      res.json(items);
+    } catch (error) {
+      console.error("Error fetching chapter items:", error);
+      res.status(500).json({ message: "Failed to fetch chapter items" });
+    }
+  });
+
+  app.post('/api/chapters', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims ? req.user.claims.sub : req.user.id;
+      
+      // Check admin authorization
+      if (userId !== 'admin') {
+        const user = await storage.getUser(userId);
+        if (user?.role !== 'admin') {
+          return res.status(403).json({ message: "Access denied" });
+        }
+      }
+
+      const chapterData = insertChapterSchema.parse(req.body);
+      const chapter = await storage.createChapter(chapterData);
+      res.json(chapter);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Invalid data", errors: error.errors });
+      }
+      console.error("Error creating chapter:", error);
+      res.status(500).json({ message: "Failed to create chapter" });
+    }
+  });
+
+  app.patch('/api/chapters/:id', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims ? req.user.claims.sub : req.user.id;
+      const chapterId = parseInt(req.params.id);
+      
+      if (isNaN(chapterId)) {
+        return res.status(400).json({ message: "Invalid chapter ID" });
+      }
+      
+      // Check admin authorization
+      if (userId !== 'admin') {
+        const user = await storage.getUser(userId);
+        if (user?.role !== 'admin') {
+          return res.status(403).json({ message: "Access denied" });
+        }
+      }
+
+      const chapterData = insertChapterSchema.partial().parse(req.body);
+      const chapter = await storage.updateChapter(chapterId, chapterData);
+      res.json(chapter);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Invalid data", errors: error.errors });
+      }
+      console.error("Error updating chapter:", error);
+      res.status(500).json({ message: "Failed to update chapter" });
+    }
+  });
+
+  app.post('/api/chapter-items', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims ? req.user.claims.sub : req.user.id;
+      
+      // Check admin authorization
+      if (userId !== 'admin') {
+        const user = await storage.getUser(userId);
+        if (user?.role !== 'admin') {
+          return res.status(403).json({ message: "Access denied" });
+        }
+      }
+
+      const itemData = insertChapterItemSchema.parse(req.body);
+      const item = await storage.createChapterItem(itemData);
+      res.json(item);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Invalid data", errors: error.errors });
+      }
+      console.error("Error creating chapter item:", error);
+      res.status(500).json({ message: "Failed to create chapter item" });
+    }
+  });
+
+  app.patch('/api/chapter-items/:id', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims ? req.user.claims.sub : req.user.id;
+      const itemId = parseInt(req.params.id);
+      
+      if (isNaN(itemId)) {
+        return res.status(400).json({ message: "Invalid item ID" });
+      }
+      
+      // Check admin authorization
+      if (userId !== 'admin') {
+        const user = await storage.getUser(userId);
+        if (user?.role !== 'admin') {
+          return res.status(403).json({ message: "Access denied" });
+        }
+      }
+
+      const itemData = insertChapterItemSchema.partial().parse(req.body);
+      const item = await storage.updateChapterItem(itemId, itemData);
+      res.json(item);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Invalid data", errors: error.errors });
+      }
+      console.error("Error updating chapter item:", error);
+      res.status(500).json({ message: "Failed to update chapter item" });
+    }
+  });
+
+  // Enhanced lecture routes
+  app.get('/api/lectures/today', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims ? req.user.claims.sub : req.user.id;
+      const lectures = await storage.getTodaysLectures(userId);
+      res.json(lectures);
+    } catch (error) {
+      console.error("Error fetching today's lectures:", error);
+      res.status(500).json({ message: "Failed to fetch today's lectures" });
+    }
+  });
+
+  app.get('/api/lectures/live', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims ? req.user.claims.sub : req.user.id;
+      const lectures = await storage.getLiveLectures(userId);
+      res.json(lectures);
+    } catch (error) {
+      console.error("Error fetching live lectures:", error);
+      res.status(500).json({ message: "Failed to fetch live lectures" });
+    }
+  });
+
+  app.get('/api/lectures/:id/join', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims ? req.user.claims.sub : req.user.id;
+      const lectureId = parseInt(req.params.id);
+      
+      if (isNaN(lectureId)) {
+        return res.status(400).json({ message: "Invalid lecture ID" });
+      }
+      
+      const joinInfo = await storage.getLectureJoinInfo(lectureId, userId);
+      
+      if (!joinInfo) {
+        return res.status(404).json({ message: "Lecture not found or not accessible" });
+      }
+      
+      res.json(joinInfo);
+    } catch (error) {
+      console.error("Error fetching lecture join info:", error);
+      res.status(500).json({ message: "Failed to fetch lecture join info" });
+    }
+  });
+
+  // Library route
+  app.get('/api/library/my', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims ? req.user.claims.sub : req.user.id;
+      const libraryContent = await storage.getUserLibraryContent(userId);
+      res.json(libraryContent);
+    } catch (error) {
+      console.error("Error fetching user library:", error);
+      res.status(500).json({ message: "Failed to fetch user library" });
+    }
   });
 
   // Categories routes

@@ -87,15 +87,44 @@ export const enrollments = pgTable("enrollments", {
   enrolledAt: timestamp("enrolled_at").defaultNow(),
 });
 
+// Chapters (course content organization)
+export const chapters = pgTable("chapters", {
+  id: serial("id").primaryKey(),
+  courseId: integer("course_id").references(() => courses.id).notNull(),
+  title: varchar("title", { length: 255 }).notNull(),
+  description: text("description"),
+  position: integer("position").default(0),
+  isPublished: boolean("is_published").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Chapter Items (videos, notes, work within chapters)
+export const chapterItems = pgTable("chapter_items", {
+  id: serial("id").primaryKey(),
+  chapterId: integer("chapter_id").references(() => chapters.id).notNull(),
+  type: varchar("type", { length: 50 }).notNull(), // video, note, work
+  title: varchar("title", { length: 255 }).notNull(),
+  description: text("description"),
+  url: varchar("url", { length: 500 }),
+  youtubeId: varchar("youtube_id", { length: 50 }),
+  thumbnailUrl: varchar("thumbnail_url", { length: 500 }),
+  durationSeconds: integer("duration_seconds"),
+  position: integer("position").default(0),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 // Lectures
 export const lectures = pgTable("lectures", {
   id: serial("id").primaryKey(),
   batchId: integer("batch_id").references(() => batches.id).notNull(),
+  chapterId: integer("chapter_id").references(() => chapters.id),
   title: varchar("title", { length: 255 }).notNull(),
   description: text("description"),
   dateTime: timestamp("date_time"),
   liveLink: varchar("live_link", { length: 500 }),
   recordingUrl: varchar("recording_url", { length: 500 }),
+  recordingThumbnail: varchar("recording_thumbnail", { length: 500 }),
+  meetingProvider: varchar("meeting_provider", { length: 50 }), // zoom, google_meet, other
   isCompleted: boolean("is_completed").default(false),
   createdAt: timestamp("created_at").defaultNow(),
 });
@@ -166,6 +195,7 @@ export const coursesRelations = relations(courses, ({ one, many }) => ({
     references: [categories.id],
   }),
   batches: many(batches),
+  chapters: many(chapters),
 }));
 
 export const batchesRelations = relations(batches, ({ one, many }) => ({
@@ -196,10 +226,30 @@ export const enrollmentsRelations = relations(enrollments, ({ one }) => ({
   }),
 }));
 
+export const chaptersRelations = relations(chapters, ({ one, many }) => ({
+  course: one(courses, {
+    fields: [chapters.courseId],
+    references: [courses.id],
+  }),
+  items: many(chapterItems),
+  lectures: many(lectures),
+}));
+
+export const chapterItemsRelations = relations(chapterItems, ({ one }) => ({
+  chapter: one(chapters, {
+    fields: [chapterItems.chapterId],
+    references: [chapters.id],
+  }),
+}));
+
 export const lecturesRelations = relations(lectures, ({ one }) => ({
   batch: one(batches, {
     fields: [lectures.batchId],
     references: [batches.id],
+  }),
+  chapter: one(chapters, {
+    fields: [lectures.chapterId],
+    references: [chapters.id],
   }),
 }));
 
@@ -266,6 +316,16 @@ export const insertEnrollmentSchema = createInsertSchema(enrollments).omit({
   enrolledAt: true,
 });
 
+export const insertChapterSchema = createInsertSchema(chapters).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertChapterItemSchema = createInsertSchema(chapterItems).omit({
+  id: true,
+  createdAt: true,
+});
+
 export const insertLectureSchema = createInsertSchema(lectures).omit({
   id: true,
   createdAt: true,
@@ -306,6 +366,12 @@ export type Batch = typeof batches.$inferSelect;
 
 export type InsertEnrollment = z.infer<typeof insertEnrollmentSchema>;
 export type Enrollment = typeof enrollments.$inferSelect;
+
+export type InsertChapter = z.infer<typeof insertChapterSchema>;
+export type Chapter = typeof chapters.$inferSelect;
+
+export type InsertChapterItem = z.infer<typeof insertChapterItemSchema>;
+export type ChapterItem = typeof chapterItems.$inferSelect;
 
 export type InsertLecture = z.infer<typeof insertLectureSchema>;
 export type Lecture = typeof lectures.$inferSelect;

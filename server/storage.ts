@@ -1,14 +1,15 @@
 import { 
   users, categories, courses, batches, enrollments, lectures, resources, 
-  assignmentSubmissions, orders, announcements,
+  assignmentSubmissions, orders, announcements, chapters, chapterItems,
   type User, type UpsertUser, type InsertCategory, type Category,
   type InsertCourse, type Course, type InsertBatch, type Batch,
   type InsertEnrollment, type Enrollment, type InsertLecture, type Lecture,
   type InsertResource, type Resource, type InsertOrder, type Order,
-  type InsertAnnouncement, type Announcement
+  type InsertAnnouncement, type Announcement, type InsertChapter, type Chapter,
+  type InsertChapterItem, type ChapterItem
 } from "@shared/schema";
 import { db, hasDatabase } from "./db";
-import { eq, and, desc, asc } from "drizzle-orm";
+import { eq, and, desc, asc, sql } from "drizzle-orm";
 
 export interface IStorage {
   // User operations (required for Replit Auth)
@@ -57,6 +58,29 @@ export interface IStorage {
   // Announcement operations
   getBatchAnnouncements(batchId: number): Promise<Announcement[]>;
   createAnnouncement(announcement: InsertAnnouncement): Promise<Announcement>;
+  
+  // Chapter operations
+  getChaptersByCourse(courseId: number): Promise<Chapter[]>;
+  createChapter(chapter: InsertChapter): Promise<Chapter>;
+  updateChapter(id: number, chapter: Partial<InsertChapter>): Promise<Chapter>;
+  
+  // Chapter item operations
+  getChapterItems(chapterId: number): Promise<ChapterItem[]>;
+  createChapterItem(item: InsertChapterItem): Promise<ChapterItem>;
+  updateChapterItem(id: number, item: Partial<InsertChapterItem>): Promise<ChapterItem>;
+  
+  // Enhanced lecture operations
+  getTodaysLectures(userId: string): Promise<Lecture[]>;
+  getLiveLectures(userId: string): Promise<Lecture[]>;
+  getLectureJoinInfo(lectureId: number, userId: string): Promise<{liveLink: string, meetingProvider: string} | null>;
+  
+  // Library operations
+  getUserLibraryContent(userId: string): Promise<{
+    videos: ChapterItem[];
+    notes: ChapterItem[];
+    assignments: Resource[];
+    pdfs: Resource[];
+  }>;
 }
 
 // In-memory storage implementation for development without database
@@ -70,6 +94,8 @@ export class MemoryStorage implements IStorage {
   private resources = new Map<number, Resource>();
   private orders = new Map<number, Order>();
   private announcements = new Map<number, Announcement>();
+  private chapters = new Map<number, Chapter>();
+  private chapterItems = new Map<number, ChapterItem>();
   private nextId = 1;
 
   constructor() {
@@ -119,7 +145,86 @@ export class MemoryStorage implements IStorage {
     ];
 
     courses.forEach(course => this.courses.set(course.id, course));
-    this.nextId = Math.max(...courses.map(c => c.id)) + 1;
+    
+    // Sample chapters
+    const chaptersData = [
+      {
+        id: 1,
+        courseId: 1,
+        title: 'Introduction to Devanagari',
+        description: 'Learn the basics of Sanskrit script and its structure',
+        position: 1,
+        isPublished: true,
+        createdAt: new Date()
+      },
+      {
+        id: 2,
+        courseId: 1,
+        title: 'Basic Grammar Rules',
+        description: 'Understanding fundamental grammar concepts in Sanskrit',
+        position: 2,
+        isPublished: true,
+        createdAt: new Date()
+      },
+      {
+        id: 3,
+        courseId: 2,
+        title: 'Core Principles of Vedanta',
+        description: 'Exploring the foundational concepts of Vedantic philosophy',
+        position: 1,
+        isPublished: true,
+        createdAt: new Date()
+      }
+    ];
+    
+    chaptersData.forEach(chapter => this.chapters.set(chapter.id, chapter));
+    
+    // Sample chapter items
+    const chapterItemsData = [
+      {
+        id: 1,
+        chapterId: 1,
+        type: 'video',
+        title: 'Sanskrit Alphabet Overview',
+        description: 'Complete introduction to Sanskrit letters',
+        url: null,
+        youtubeId: 'dQw4w9WgXcQ',
+        thumbnailUrl: null,
+        durationSeconds: 1800,
+        position: 1,
+        createdAt: new Date()
+      },
+      {
+        id: 2,
+        chapterId: 1,
+        type: 'note',
+        title: 'Devanagari Practice Sheet',
+        description: 'Downloadable practice exercises for writing Sanskrit letters',
+        url: '/resources/devanagari-practice.pdf',
+        youtubeId: null,
+        thumbnailUrl: null,
+        durationSeconds: null,
+        position: 2,
+        createdAt: new Date()
+      },
+      {
+        id: 3,
+        chapterId: 2,
+        type: 'video',
+        title: 'Grammar Fundamentals',
+        description: 'Basic grammar rules and structure',
+        url: null,
+        youtubeId: 'abc123xyz',
+        thumbnailUrl: null,
+        durationSeconds: 2400,
+        position: 1,
+        createdAt: new Date()
+      }
+    ];
+    
+    chapterItemsData.forEach(item => this.chapterItems.set(item.id, item));
+    
+    this.nextId = Math.max(...courses.map(c => c.id), ...chaptersData.map(c => c.id), ...chapterItemsData.map(i => i.id)) + 1;
   }
 
   // User operations
@@ -388,6 +493,168 @@ export class MemoryStorage implements IStorage {
     this.announcements.set(newAnnouncement.id, newAnnouncement);
     return newAnnouncement;
   }
+
+  // Chapter operations
+  async getChaptersByCourse(courseId: number): Promise<Chapter[]> {
+    return Array.from(this.chapters.values())
+      .filter(chapter => chapter.courseId === courseId && chapter.isPublished)
+      .sort((a, b) => (a.position || 0) - (b.position || 0));
+  }
+
+  async createChapter(chapter: InsertChapter): Promise<Chapter> {
+    const newChapter: Chapter = {
+      id: this.nextId++,
+      ...chapter,
+      description: chapter.description ?? null,
+      position: chapter.position ?? null,
+      isPublished: chapter.isPublished ?? null,
+      createdAt: new Date()
+    };
+    this.chapters.set(newChapter.id, newChapter);
+    return newChapter;
+  }
+
+  async updateChapter(id: number, chapter: Partial<InsertChapter>): Promise<Chapter> {
+    const existing = this.chapters.get(id);
+    if (!existing) throw new Error('Chapter not found');
+    
+    const updatedChapter = { ...existing, ...chapter };
+    this.chapters.set(id, updatedChapter);
+    return updatedChapter;
+  }
+
+  // Chapter item operations
+  async getChapterItems(chapterId: number): Promise<ChapterItem[]> {
+    return Array.from(this.chapterItems.values())
+      .filter(item => item.chapterId === chapterId)
+      .sort((a, b) => (a.position || 0) - (b.position || 0));
+  }
+
+  async createChapterItem(item: InsertChapterItem): Promise<ChapterItem> {
+    const newItem: ChapterItem = {
+      id: this.nextId++,
+      ...item,
+      description: item.description ?? null,
+      url: item.url ?? null,
+      youtubeId: item.youtubeId ?? null,
+      thumbnailUrl: item.thumbnailUrl ?? null,
+      durationSeconds: item.durationSeconds ?? null,
+      position: item.position ?? null,
+      createdAt: new Date()
+    };
+    this.chapterItems.set(newItem.id, newItem);
+    return newItem;
+  }
+
+  async updateChapterItem(id: number, item: Partial<InsertChapterItem>): Promise<ChapterItem> {
+    const existing = this.chapterItems.get(id);
+    if (!existing) throw new Error('Chapter item not found');
+    
+    const updatedItem = { ...existing, ...item };
+    this.chapterItems.set(id, updatedItem);
+    return updatedItem;
+  }
+
+  // Enhanced lecture operations
+  async getTodaysLectures(userId: string): Promise<Lecture[]> {
+    // Get user's enrolled batches
+    const userEnrollments = this.enrollments.filter(enrollment => enrollment.userId === userId);
+    const enrolledBatchIds = userEnrollments.map(enrollment => enrollment.batchId);
+    
+    // Get today's date range
+    const today = new Date();
+    const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    const endOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
+    
+    // Find lectures for enrolled batches scheduled for today
+    return Array.from(this.lectures.values())
+      .filter(lecture => {
+        if (!enrolledBatchIds.includes(lecture.batchId)) return false;
+        if (!lecture.dateTime) return false;
+        return lecture.dateTime >= startOfDay && lecture.dateTime < endOfDay;
+      })
+      .sort((a, b) => (a.dateTime?.getTime() || 0) - (b.dateTime?.getTime() || 0));
+  }
+
+  async getLiveLectures(userId: string): Promise<Lecture[]> {
+    // Get user's enrolled batches
+    const userEnrollments = this.enrollments.filter(enrollment => enrollment.userId === userId);
+    const enrolledBatchIds = userEnrollments.map(enrollment => enrollment.batchId);
+    
+    const now = new Date();
+    
+    // Find live lectures (within 1 hour window)
+    return Array.from(this.lectures.values())
+      .filter(lecture => {
+        if (!enrolledBatchIds.includes(lecture.batchId)) return false;
+        if (!lecture.dateTime || !lecture.liveLink) return false;
+        
+        const lectureTime = lecture.dateTime.getTime();
+        const currentTime = now.getTime();
+        // Consider lecture live if it's within 30 minutes before to 2 hours after scheduled time
+        return lectureTime <= currentTime + (30 * 60 * 1000) && 
+               lectureTime >= currentTime - (2 * 60 * 60 * 1000);
+      })
+      .sort((a, b) => (a.dateTime?.getTime() || 0) - (b.dateTime?.getTime() || 0));
+  }
+
+  async getLectureJoinInfo(lectureId: number, userId: string): Promise<{liveLink: string, meetingProvider: string} | null> {
+    const lecture = this.lectures.get(lectureId);
+    if (!lecture || !lecture.liveLink) return null;
+    
+    // Verify user is enrolled in the batch
+    const isEnrolled = this.enrollments.some(enrollment => 
+      enrollment.userId === userId && enrollment.batchId === lecture.batchId
+    );
+    
+    if (!isEnrolled) return null;
+    
+    return {
+      liveLink: lecture.liveLink,
+      meetingProvider: lecture.meetingProvider || 'other'
+    };
+  }
+
+  // Library operations
+  async getUserLibraryContent(userId: string): Promise<{
+    videos: ChapterItem[];
+    notes: ChapterItem[];
+    assignments: Resource[];
+    pdfs: Resource[];
+  }> {
+    // Get user's enrolled batches
+    const userEnrollments = this.enrollments.filter(enrollment => enrollment.userId === userId);
+    const enrolledBatchIds = userEnrollments.map(enrollment => enrollment.batchId);
+    
+    // Get courses for enrolled batches
+    const enrolledBatches = Array.from(this.batches.values()).filter(batch => 
+      enrolledBatchIds.includes(batch.id)
+    );
+    const enrolledCourseIds = [...new Set(enrolledBatches.map(batch => batch.courseId))];
+    
+    // Get chapters for enrolled courses
+    const chapters = Array.from(this.chapters.values()).filter(chapter => 
+      enrolledCourseIds.includes(chapter.courseId) && chapter.isPublished
+    );
+    const chapterIds = chapters.map(chapter => chapter.id);
+    
+    // Get chapter items for these chapters
+    const allChapterItems = Array.from(this.chapterItems.values()).filter(item => 
+      chapterIds.includes(item.chapterId)
+    );
+    
+    // Get resources for enrolled batches
+    const allResources = Array.from(this.resources.values()).filter(resource => 
+      enrolledBatchIds.includes(resource.batchId)
+    );
+    
+    return {
+      videos: allChapterItems.filter(item => item.type === 'video').sort((a, b) => b.createdAt!.getTime() - a.createdAt!.getTime()),
+      notes: allChapterItems.filter(item => item.type === 'note').sort((a, b) => b.createdAt!.getTime() - a.createdAt!.getTime()),
+      assignments: allResources.filter(resource => resource.type === 'assignment').sort((a, b) => b.createdAt!.getTime() - a.createdAt!.getTime()),
+      pdfs: allResources.filter(resource => resource.type === 'pdf').sort((a, b) => b.createdAt!.getTime() - a.createdAt!.getTime())
+    };
+  }
 }
 
 export class DatabaseStorage implements IStorage {
@@ -627,6 +894,176 @@ export class DatabaseStorage implements IStorage {
     if (!db) throw new Error('Database not available');
     const [newAnnouncement] = await db.insert(announcements).values(announcement).returning();
     return newAnnouncement;
+  }
+
+  // Chapter operations
+  async getChaptersByCourse(courseId: number): Promise<Chapter[]> {
+    if (!db) throw new Error('Database not available');
+    return await db.select().from(chapters)
+      .where(and(eq(chapters.courseId, courseId), eq(chapters.isPublished, true)))
+      .orderBy(asc(chapters.position));
+  }
+
+  async createChapter(chapter: InsertChapter): Promise<Chapter> {
+    if (!db) throw new Error('Database not available');
+    const [newChapter] = await db.insert(chapters).values(chapter).returning();
+    return newChapter;
+  }
+
+  async updateChapter(id: number, chapter: Partial<InsertChapter>): Promise<Chapter> {
+    if (!db) throw new Error('Database not available');
+    const [updatedChapter] = await db.update(chapters).set(chapter).where(eq(chapters.id, id)).returning();
+    return updatedChapter;
+  }
+
+  // Chapter item operations
+  async getChapterItems(chapterId: number): Promise<ChapterItem[]> {
+    if (!db) throw new Error('Database not available');
+    return await db.select().from(chapterItems)
+      .where(eq(chapterItems.chapterId, chapterId))
+      .orderBy(asc(chapterItems.position));
+  }
+
+  async createChapterItem(item: InsertChapterItem): Promise<ChapterItem> {
+    if (!db) throw new Error('Database not available');
+    const [newItem] = await db.insert(chapterItems).values(item).returning();
+    return newItem;
+  }
+
+  async updateChapterItem(id: number, item: Partial<InsertChapterItem>): Promise<ChapterItem> {
+    if (!db) throw new Error('Database not available');
+    const [updatedItem] = await db.update(chapterItems).set(item).where(eq(chapterItems.id, id)).returning();
+    return updatedItem;
+  }
+
+  // Enhanced lecture operations
+  async getTodaysLectures(userId: string): Promise<Lecture[]> {
+    if (!db) throw new Error('Database not available');
+    
+    // Get today's date range
+    const today = new Date();
+    const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    const endOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
+    
+    return await db.select()
+      .from(lectures)
+      .innerJoin(batches, eq(lectures.batchId, batches.id))
+      .innerJoin(enrollments, eq(batches.id, enrollments.batchId))
+      .where(and(
+        eq(enrollments.userId, userId),
+        sql`${lectures.dateTime} >= ${startOfDay}`,
+        sql`${lectures.dateTime} < ${endOfDay}`
+      ))
+      .orderBy(asc(lectures.dateTime));
+  }
+
+  async getLiveLectures(userId: string): Promise<Lecture[]> {
+    if (!db) throw new Error('Database not available');
+    
+    const now = new Date();
+    const startWindow = new Date(now.getTime() - (30 * 60 * 1000)); // 30 minutes ago
+    const endWindow = new Date(now.getTime() + (2 * 60 * 60 * 1000)); // 2 hours from now
+    
+    return await db.select()
+      .from(lectures)
+      .innerJoin(batches, eq(lectures.batchId, batches.id))
+      .innerJoin(enrollments, eq(batches.id, enrollments.batchId))
+      .where(and(
+        eq(enrollments.userId, userId),
+        sql`${lectures.liveLink} IS NOT NULL`,
+        sql`${lectures.dateTime} >= ${startWindow}`,
+        sql`${lectures.dateTime} <= ${endWindow}`
+      ))
+      .orderBy(asc(lectures.dateTime));
+  }
+
+  async getLectureJoinInfo(lectureId: number, userId: string): Promise<{liveLink: string, meetingProvider: string} | null> {
+    if (!db) throw new Error('Database not available');
+    
+    const [result] = await db.select({
+      liveLink: lectures.liveLink,
+      meetingProvider: lectures.meetingProvider
+    })
+    .from(lectures)
+    .innerJoin(batches, eq(lectures.batchId, batches.id))
+    .innerJoin(enrollments, eq(batches.id, enrollments.batchId))
+    .where(and(
+      eq(lectures.id, lectureId),
+      eq(enrollments.userId, userId),
+      sql`${lectures.liveLink} IS NOT NULL`
+    ));
+    
+    if (!result) return null;
+    
+    return {
+      liveLink: result.liveLink!,
+      meetingProvider: result.meetingProvider || 'other'
+    };
+  }
+
+  // Library operations
+  async getUserLibraryContent(userId: string): Promise<{
+    videos: ChapterItem[];
+    notes: ChapterItem[];
+    assignments: Resource[];
+    pdfs: Resource[];
+  }> {
+    if (!db) throw new Error('Database not available');
+    
+    // Get videos and notes from chapter items
+    const videos = await db.select()
+      .from(chapterItems)
+      .innerJoin(chapters, eq(chapterItems.chapterId, chapters.id))
+      .innerJoin(courses, eq(chapters.courseId, courses.id))
+      .innerJoin(batches, eq(courses.id, batches.courseId))
+      .innerJoin(enrollments, eq(batches.id, enrollments.batchId))
+      .where(and(
+        eq(enrollments.userId, userId),
+        eq(chapterItems.type, 'video'),
+        eq(chapters.isPublished, true)
+      ))
+      .orderBy(desc(chapterItems.createdAt));
+
+    const notes = await db.select()
+      .from(chapterItems)
+      .innerJoin(chapters, eq(chapterItems.chapterId, chapters.id))
+      .innerJoin(courses, eq(chapters.courseId, courses.id))
+      .innerJoin(batches, eq(courses.id, batches.courseId))
+      .innerJoin(enrollments, eq(batches.id, enrollments.batchId))
+      .where(and(
+        eq(enrollments.userId, userId),
+        eq(chapterItems.type, 'note'),
+        eq(chapters.isPublished, true)
+      ))
+      .orderBy(desc(chapterItems.createdAt));
+
+    // Get assignments and PDFs from resources
+    const assignments = await db.select()
+      .from(resources)
+      .innerJoin(batches, eq(resources.batchId, batches.id))
+      .innerJoin(enrollments, eq(batches.id, enrollments.batchId))
+      .where(and(
+        eq(enrollments.userId, userId),
+        eq(resources.type, 'assignment')
+      ))
+      .orderBy(desc(resources.createdAt));
+
+    const pdfs = await db.select()
+      .from(resources)
+      .innerJoin(batches, eq(resources.batchId, batches.id))
+      .innerJoin(enrollments, eq(batches.id, enrollments.batchId))
+      .where(and(
+        eq(enrollments.userId, userId),
+        eq(resources.type, 'pdf')
+      ))
+      .orderBy(desc(resources.createdAt));
+
+    return {
+      videos: videos.map(row => row.chapter_items),
+      notes: notes.map(row => row.chapter_items),
+      assignments: assignments.map(row => row.resources),
+      pdfs: pdfs.map(row => row.resources)
+    };
   }
 }
 
