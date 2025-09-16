@@ -1,5 +1,5 @@
 import { useParams, useLocation } from "wouter";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -7,13 +7,17 @@ import { Separator } from "@/components/ui/separator";
 import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";
 import { useAuth } from "@/hooks/useAuth";
-import { Clock, Users, Award, Calendar, Star } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { apiRequest } from "@/lib/queryClient";
+import { Clock, Users, Award, Calendar, Star, Loader2 } from "lucide-react";
 import type { Course, Batch } from "@shared/schema";
 
 export default function CourseDetail() {
   const { slug } = useParams();
   const [, setLocation] = useLocation();
   const { isAuthenticated } = useAuth();
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   const { data: course, isLoading: courseLoading } = useQuery<Course>({
     queryKey: ["/api/courses", slug],
@@ -26,13 +30,47 @@ export default function CourseDetail() {
 
   const courseBatches = batches.filter(batch => batch.courseId === course?.id);
 
+  const enrollMutation = useMutation({
+    mutationFn: async (batchId: number) => {
+      const response = await apiRequest("POST", "/api/enrollments", { batchId });
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Enrollment failed');
+      }
+      return await response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/enrollments/my"] });
+      toast({
+        title: "Enrollment Successful!",
+        description: "You have been successfully enrolled in the course. Welcome aboard!",
+      });
+      setLocation("/enrollment-success");
+    },
+    onError: (error: any) => {
+      const errorMessage = error?.message || "Failed to enroll. Please try again.";
+      const isAlreadyEnrolled = errorMessage.includes("Already enrolled");
+      
+      toast({
+        title: isAlreadyEnrolled ? "Already Enrolled" : "Enrollment Failed",
+        description: isAlreadyEnrolled 
+          ? "You're already enrolled in this batch. Check your dashboard to access the course."
+          : errorMessage,
+        variant: "destructive",
+      });
+      
+      if (isAlreadyEnrolled) {
+        setLocation("/dashboard");
+      }
+    },
+  });
+
   const handleEnroll = (batchId: number) => {
     if (!isAuthenticated) {
       window.location.href = "/api/login";
       return;
     }
-    // For now, redirect to dashboard - payment integration would go here
-    setLocation("/dashboard");
+    enrollMutation.mutate(batchId);
   };
 
   const getDefaultThumbnail = () => {
@@ -230,10 +268,20 @@ export default function CourseDetail() {
                 <Button 
                   className="w-full mb-4" 
                   size="lg"
-                  onClick={() => handleEnroll(courseBatches[0]?.id || 1)}
+                  onClick={() => courseBatches[0]?.id && handleEnroll(courseBatches[0].id)}
+                  disabled={enrollMutation.isPending || !courseBatches[0]?.id}
                   data-testid="button-enroll-course"
                 >
-                  {isAuthenticated ? 'Enroll Now' : 'Login to Enroll'}
+                  {enrollMutation.isPending ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Enrolling...
+                    </>
+                  ) : !courseBatches[0]?.id ? (
+                    'No Batches Available'
+                  ) : (
+                    isAuthenticated ? 'Enroll Now' : 'Login to Enroll'
+                  )}
                 </Button>
                 
                 <p className="text-xs text-muted-foreground text-center">
@@ -268,9 +316,17 @@ export default function CourseDetail() {
                           size="sm" 
                           className="mt-3 w-full"
                           onClick={() => handleEnroll(batch.id)}
+                          disabled={enrollMutation.isPending}
                           data-testid={`button-enroll-batch-${batch.id}`}
                         >
-                          Join This Batch
+                          {enrollMutation.isPending ? (
+                            <>
+                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                              Enrolling...
+                            </>
+                          ) : (
+                            'Join This Batch'
+                          )}
                         </Button>
                       </div>
                     ))}
