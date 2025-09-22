@@ -22,11 +22,13 @@ export interface IStorage {
   
   // Course operations
   getCourses(): Promise<Course[]>;
+  getCourse(id: number): Promise<Course | undefined>;
   getCourseBySlug(slug: string): Promise<Course | undefined>;
   getCoursesByCategory(categoryId: number): Promise<Course[]>;
   createCourse(course: InsertCourse): Promise<Course>;
   updateCourse(id: number, course: Partial<InsertCourse>): Promise<Course>;
   deleteCourse(id: number): Promise<void>;
+  getCourseDefaultBatch(courseId: number): Promise<Batch | undefined>;
   
   // Batch operations
   getBatches(): Promise<Batch[]>;
@@ -284,8 +286,18 @@ export class MemoryStorage implements IStorage {
     return coursesArray;
   }
 
+  async getCourse(id: number): Promise<Course | undefined> {
+    return this.courses.get(id);
+  }
+
   async getCourseBySlug(slug: string): Promise<Course | undefined> {
     return Array.from(this.courses.values()).find(course => course.slug === slug && course.isActive);
+  }
+
+  async getCourseDefaultBatch(courseId: number): Promise<Batch | undefined> {
+    return Array.from(this.batches.values()).find(batch => 
+      batch.courseId === courseId && batch.title.includes('Default Batch')
+    );
   }
 
   async getCoursesByCategory(categoryId: number): Promise<Course[]> {
@@ -736,10 +748,24 @@ export class DatabaseStorage implements IStorage {
       .orderBy(desc(courses.createdAt));
   }
 
+  async getCourse(id: number): Promise<Course | undefined> {
+    if (!db) throw new Error('Database not available');
+    const [course] = await db.select().from(courses).where(eq(courses.id, id));
+    return course;
+  }
+
   async getCourseBySlug(slug: string): Promise<Course | undefined> {
     if (!db) throw new Error('Database not available');
     const [course] = await db.select().from(courses).where(and(eq(courses.slug, slug), eq(courses.isActive, true)));
     return course;
+  }
+
+  async getCourseDefaultBatch(courseId: number): Promise<Batch | undefined> {
+    if (!db) throw new Error('Database not available');
+    const [batch] = await db.select().from(batches)
+      .where(and(eq(batches.courseId, courseId), sql`${batches.title} LIKE '%Default Batch%'`))
+      .limit(1);
+    return batch;
   }
 
   async getCoursesByCategory(categoryId: number): Promise<Course[]> {

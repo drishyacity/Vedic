@@ -10,7 +10,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { Clock, Users, Award, Calendar, Star, Loader2 } from "lucide-react";
-import type { Course, Batch } from "@shared/schema";
+import type { Course } from "@shared/schema";
 
 export default function CourseDetail() {
   const { slug } = useParams();
@@ -23,16 +23,10 @@ export default function CourseDetail() {
     queryKey: ["/api/courses", slug],
   });
 
-  const { data: batches = [] } = useQuery<Batch[]>({
-    queryKey: ["/api/batches"],
-    enabled: !!course,
-  });
-
-  const courseBatches = batches.filter(batch => batch.courseId === course?.id);
 
   const enrollMutation = useMutation({
-    mutationFn: async (batchId: number) => {
-      const response = await apiRequest("POST", "/api/enrollments", { batchId });
+    mutationFn: async (courseId: number) => {
+      const response = await apiRequest("POST", "/api/enrollments", { courseId });
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.message || 'Enrollment failed');
@@ -65,12 +59,12 @@ export default function CourseDetail() {
     },
   });
 
-  const handleEnroll = (batchId: number) => {
+  const handleEnroll = (courseId: number) => {
     if (!isAuthenticated) {
       window.location.href = "/api/login";
       return;
     }
-    enrollMutation.mutate(batchId);
+    enrollMutation.mutate(courseId);
   };
 
   const getDefaultThumbnail = () => {
@@ -268,8 +262,8 @@ export default function CourseDetail() {
                 <Button 
                   className="w-full mb-4" 
                   size="lg"
-                  onClick={() => courseBatches[0]?.id && handleEnroll(courseBatches[0].id)}
-                  disabled={enrollMutation.isPending || !courseBatches[0]?.id}
+                  onClick={() => course?.id && handleEnroll(course.id)}
+                  disabled={enrollMutation.isPending || !course?.id}
                   data-testid="button-enroll-course"
                 >
                   {enrollMutation.isPending ? (
@@ -277,8 +271,6 @@ export default function CourseDetail() {
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                       Enrolling...
                     </>
-                  ) : !courseBatches[0]?.id ? (
-                    'No Batches Available'
                   ) : (
                     isAuthenticated ? 'Enroll Now' : 'Login to Enroll'
                   )}
@@ -290,50 +282,6 @@ export default function CourseDetail() {
               </CardContent>
             </Card>
 
-            {/* Available Batches */}
-            {courseBatches.length > 0 && (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg" data-testid="batches-title">Available Batches</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {courseBatches.map((batch) => (
-                      <div key={batch.id} className="border border-border rounded-lg p-4" data-testid={`batch-${batch.id}`}>
-                        <h4 className="font-semibold text-foreground mb-2">{batch.title}</h4>
-                        <div className="space-y-1 text-sm text-muted-foreground">
-                          <div className="flex items-center space-x-2">
-                            <Calendar className="h-4 w-4" />
-                            <span data-testid={`batch-schedule-${batch.id}`}>{batch.schedule || 'Mon, Wed, Fri'}</span>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <Clock className="h-4 w-4" />
-                            <span data-testid={`batch-time-${batch.id}`}>{batch.time || '7:00 PM'}</span>
-                          </div>
-                        </div>
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
-                          className="mt-3 w-full"
-                          onClick={() => handleEnroll(batch.id)}
-                          disabled={enrollMutation.isPending}
-                          data-testid={`button-enroll-batch-${batch.id}`}
-                        >
-                          {enrollMutation.isPending ? (
-                            <>
-                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                              Enrolling...
-                            </>
-                          ) : (
-                            'Join This Batch'
-                          )}
-                        </Button>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            )}
 
             {/* Course Features */}
             <Card>

@@ -9,8 +9,7 @@ import {
   FileText,
   Bell,
   Settings,
-  BarChart3,
-  GraduationCap
+  BarChart3
 } from "lucide-react";
 
 const sidebarItems = [
@@ -31,12 +30,6 @@ const sidebarItems = [
     href: "/admin/students",
     icon: Users,
     description: "View and manage students"
-  },
-  {
-    title: "Batches",
-    href: "/admin/batches",
-    icon: GraduationCap,
-    description: "Schedule and manage batches"
   },
   {
     title: "Payments",
@@ -152,7 +145,7 @@ export default function AdminSidebar() {
               <span className="font-medium text-foreground">1,247</span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-muted-foreground">Live Batches</span>
+              <span className="text-muted-foreground">Active Courses</span>
               <span className="font-medium text-foreground">24</span>
             </div>
             <div className="flex items-center justify-between">

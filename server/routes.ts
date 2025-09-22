@@ -609,15 +609,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/enrollments', isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;
-      const enrollmentData = { ...req.body, userId };
+      const { courseId } = req.body;
+      
+      if (!courseId) {
+        return res.status(400).json({ message: "Course ID is required" });
+      }
+      
+      // Find or create a default batch for this course
+      let batch = await storage.getCourseDefaultBatch(courseId);
+      if (!batch) {
+        // Create a default batch for the course
+        const course = await storage.getCourse(courseId);
+        if (!course) {
+          return res.status(404).json({ message: "Course not found" });
+        }
+        
+        batch = await storage.createBatch({
+          courseId: courseId,
+          title: `${course.title} - Default Batch`,
+          schedule: "Flexible",
+          time: "Self-paced",
+          isActive: true
+        });
+      }
       
       // Check if already enrolled
-      const isEnrolled = await storage.isUserEnrolled(userId, enrollmentData.batchId);
+      const isEnrolled = await storage.isUserEnrolled(userId, batch.id);
       if (isEnrolled) {
-        return res.status(400).json({ message: "Already enrolled in this batch" });
+        return res.status(400).json({ message: "Already enrolled in this course" });
       }
 
-      const enrollment = await storage.createEnrollment(enrollmentData);
+      const enrollment = await storage.createEnrollment({
+        userId,
+        batchId: batch.id,
+        status: "active"
+      });
       res.json(enrollment);
     } catch (error) {
       console.error("Error creating enrollment:", error);
